@@ -1,0 +1,2473 @@
+<!DOCTYPE html>
+<html lang="id">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Dashboard - MeetBase</title>
+    <!-- Favicon -->
+    <link rel="icon" type="image/svg+xml"
+        href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'><rect width='24' height='24' rx='6' fill='%234f46e5'/><path d='M13 10V3L4 14h7v7l9-11h-7z' fill='white'/></svg>">
+    <!-- Tailwind CSS CDN -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Google Font: Plus Jakarta Sans & JetBrains Mono for Monospace -->
+    <link
+        href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500&family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap"
+        rel="stylesheet">
+    <!-- MeetBase Loader CSS -->
+    <link rel="stylesheet" href="loader.css">
+    <style>
+        body {
+            font-family: 'Plus Jakarta Sans', sans-serif;
+            -webkit-tap-highlight-color: transparent;
+        }
+
+        .font-mono-code {
+            font-family: 'JetBrains Mono', monospace;
+        }
+
+        /* Custom Scrollbars */
+        ::-webkit-scrollbar {
+            width: 5px;
+            height: 5px;
+        }
+
+        ::-webkit-scrollbar-track {
+            background: transparent;
+        }
+
+        ::-webkit-scrollbar-thumb {
+            background: #e2e8f0;
+            border-radius: 9999px;
+        }
+
+        ::-webkit-scrollbar-thumb:hover {
+            background: #cbd5e1;
+        }
+
+        [contenteditable="true"]:empty:before {
+            content: attr(data-placeholder);
+            color: #9ca3af;
+            pointer-events: none;
+            display: block;
+        }
+
+        .editor-content blockquote {
+            border-left: 3px solid #6366f1;
+            padding-left: 0.75rem;
+            color: #4b5563;
+            font-style: italic;
+            margin: 0.5rem 0;
+        }
+
+        .editor-content code {
+            font-family: 'JetBrains Mono', monospace;
+            background-color: #f3f4f6;
+            color: #374151;
+            padding: 0.15rem 0.4rem;
+            border-radius: 0.375rem;
+            font-size: 0.85em;
+        }
+
+        .editor-content ul {
+            list-style-type: disc;
+            padding-left: 1.25rem;
+        }
+
+        .editor-content ol {
+            list-style-type: decimal;
+            padding-left: 1.25rem;
+        }
+
+        .editor-content h1 {
+            font-size: 1.35rem;
+            font-weight: 700;
+            margin-top: 0.5rem;
+            margin-bottom: 0.5rem;
+        }
+
+        .editor-content h2 {
+            font-size: 1.15rem;
+            font-weight: 600;
+            margin-top: 0.5rem;
+            margin-bottom: 0.5rem;
+        }
+
+        /* Prevent unwanted horizontal stretching on mobile */
+        html, body {
+            max-width: 100%;
+            overflow-x: hidden;
+        }
+    </style>
+</head>
+
+<body class="bg-gray-50 text-gray-900 antialiased h-screen flex flex-col overflow-hidden">
+
+    <!-- MeetBase Loading Screen -->
+    <div id="meetbase-loader">
+        <div class="mb-loader-aura"></div>
+        <div class="mb-loader-logo">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+                <path d="M13 10V3L4 14h7v7l9-11h-7z"/>
+            </svg>
+        </div>
+        <div class="mb-loader-brand">
+            <span class="mb-loader-title">MeetBase</span>
+            <span class="mb-loader-badge">Workspace</span>
+        </div>
+        <div class="mb-loader-progress-track">
+            <div class="mb-loader-progress-bar"></div>
+        </div>
+        <div class="mb-loader-status" id="meetbase-loader-text">Menyiapkan ruang kerja...</div>
+    </div>
+
+    <!-- TOP NAVBAR -->
+    <header class="h-16 bg-white border-b border-gray-200 px-3 sm:px-6 flex items-center justify-between shrink-0 z-30">
+        <div class="flex items-center space-x-2 sm:space-x-3">
+            <!-- Hamburger Button (Mobile & Tablet) -->
+            <button type="button" onclick="toggleMobileSidebar()"
+                class="lg:hidden p-2 text-gray-600 hover:text-indigo-600 hover:bg-gray-100 rounded-xl transition-colors focus:outline-none"
+                aria-label="Buka Navigasi">
+                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16"></path>
+                </svg>
+            </button>
+
+            <!-- Brand Logo -->
+            <div class="bg-indigo-600 p-2 rounded-xl text-white shadow-md shadow-indigo-600/20 shrink-0">
+                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                        d="M13 10V3L4 14h7v7l9-11h-7z"></path>
+                </svg>
+            </div>
+            <div>
+                <span class="text-lg sm:text-xl font-bold tracking-tight text-gray-900">MeetBase</span>
+                <span class="hidden sm:inline-block text-[10px] bg-indigo-50 text-indigo-600 font-bold px-2 py-0.5 rounded-full ml-1.5">Smart Notes</span>
+            </div>
+        </div>
+
+        <!-- Search Bar Universal (Responsif) -->
+        <div class="flex-1 max-w-xl mx-2 sm:mx-6 md:mx-8">
+            <div class="relative">
+                <span class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none text-gray-400">
+                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                            d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path>
+                    </svg>
+                </span>
+                <input type="text" id="searchInput" oninput="handleSearch(event)"
+                    placeholder="Cari catatan, ide, atau label..."
+                    class="w-full pl-9 pr-3 py-1.5 sm:py-2 bg-gray-50 border border-gray-200 rounded-xl text-xs sm:text-sm focus:outline-none focus:border-indigo-600 focus:bg-white focus:ring-2 focus:ring-indigo-600/10 transition-all placeholder:text-gray-400">
+            </div>
+        </div>
+
+        <!-- Quick Actions & User Profile -->
+        <div class="flex items-center space-x-1.5 sm:space-x-3">
+            <!-- Tombol Cepat Pengingat Hari Ini -->
+            <button onclick="setReminderFilter('today'); if(window.innerWidth < 1024) openMobileSidebar();" title="Pengingat Hari Ini"
+                class="relative p-2 text-gray-500 hover:text-indigo-600 hover:bg-gray-100 rounded-xl transition-colors">
+                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                        d="M15 17h5l-1.405-1.405A2.032 2.032 0 0118 14.158V11a6.002 6.002 0 00-4-5.659V5a2 2 0 10-4 0v.341C7.67 6.165 6 8.388 6 11v3.159c0 .538-.214 1.055-.595 1.436L4 17h5m6 0v1a3 3 0 11-6 0v-1m6 0H9"></path>
+                </svg>
+                <span id="navReminderDot"
+                    class="hidden absolute top-1.5 right-1.5 w-2 h-2 bg-amber-500 rounded-full ring-2 ring-white animate-pulse"></span>
+            </button>
+
+            <!-- User Profile Dropdown & Logout -->
+            <div class="relative" id="userMenuWrapper">
+                <button type="button" onclick="toggleUserDropdown(event)"
+                    class="flex items-center space-x-2 p-1 sm:p-1.5 rounded-xl hover:bg-gray-100 transition-colors focus:outline-none">
+                    <div id="userAvatarInitials"
+                        class="w-8 h-8 sm:w-9 sm:h-9 rounded-full bg-indigo-100 text-indigo-700 font-bold flex items-center justify-center text-xs sm:text-sm border border-indigo-200">
+                        NP
+                    </div>
+                    <div class="hidden md:block text-left pr-1">
+                        <p id="userNameDisplay" class="text-xs font-bold text-gray-900 leading-tight">Naiska Putri</p>
+                        <p id="userRoleDisplay" class="text-[10px] text-gray-500 leading-tight">Pengguna</p>
+                    </div>
+                    <svg class="w-3.5 h-3.5 text-gray-400 hidden sm:block" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path>
+                    </svg>
+                </button>
+
+                <!-- Dropdown Menu -->
+                <div id="userDropdown"
+                    class="hidden absolute right-0 mt-2 w-52 bg-white rounded-xl shadow-xl border border-gray-100 py-1.5 z-50 transition-all">
+                    <div class="px-4 py-2.5 border-b border-gray-100">
+                        <p id="dropdownName" class="text-xs font-bold text-gray-900">Naiska Putri</p>
+                        <p id="dropdownEmail" class="text-[11px] text-gray-500 truncate">naiska.putri@meetbase.id</p>
+                    </div>
+                    <div class="py-1">
+                        <a href="index.html"
+                            class="w-full flex items-center space-x-2.5 px-4 py-2 text-xs font-medium text-gray-700 hover:bg-indigo-50/60 hover:text-indigo-600 transition-colors">
+                            <svg class="w-4 h-4 text-indigo-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                    d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+                            </svg>
+                            <span>Tur & Pengenalan MeetBase</span>
+                        </a>
+                        <a href="login.html" onclick="handleLogout(event)"
+                            class="w-full flex items-center space-x-2.5 px-4 py-2 text-xs font-medium text-red-600 hover:bg-red-50 transition-colors">
+                            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                    d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1"></path>
+                            </svg>
+                            <span>Keluar (Logout)</span>
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </header>
+
+    <!-- MAIN APP CONTAINER (Multi-Device Responsive Split View) -->
+    <div class="flex flex-1 overflow-hidden relative">
+
+        <!-- BACKDROP OVERLAY UNTUK DRAWER MOBILE & TABLET -->
+        <div id="mobileSidebarBackdrop" onclick="closeMobileSidebar()"
+            class="fixed inset-0 bg-gray-900/50 backdrop-blur-xs z-40 hidden transition-opacity duration-300 opacity-0 lg:hidden">
+        </div>
+
+        <!-- PANEL 1: SIDEBAR NAVIGASI (Desktop Statically, Mobile/Tablet Off-canvas Drawer) -->
+        <aside id="mainSidebar"
+            class="fixed lg:static inset-y-0 left-0 z-50 w-80 lg:w-72 max-w-[85vw] bg-white border-r border-gray-200 p-4 flex flex-col justify-between shrink-0 select-none overflow-hidden transition-transform duration-300 ease-in-out -translate-x-full lg:translate-x-0 shadow-2xl lg:shadow-none">
+            
+            <!-- Header Khusus Mobile Drawer -->
+            <div class="flex items-center justify-between pb-3 mb-2 border-b border-gray-100 lg:hidden shrink-0">
+                <div class="flex items-center space-x-2">
+                    <div class="bg-indigo-600 p-1.5 rounded-lg text-white">
+                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z"></path></svg>
+                    </div>
+                    <span class="font-bold text-gray-900 text-sm">Kalender & Menu</span>
+                </div>
+                <button type="button" onclick="closeMobileSidebar()" class="p-1.5 text-gray-400 hover:text-gray-700 hover:bg-gray-100 rounded-lg transition-colors">
+                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path></svg>
+                </button>
+            </div>
+
+            <div class="space-y-4 overflow-y-auto pr-1 flex-1">
+                <button onclick="openModal(); if(window.innerWidth < 1024) closeMobileSidebar();"
+                    class="w-full inline-flex items-center justify-center space-x-2 bg-indigo-600 hover:bg-indigo-700 text-white font-semibold py-2.5 px-4 rounded-xl shadow-md shadow-indigo-600/20 active:scale-95 transition-all text-sm">
+                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"></path>
+                    </svg>
+                    <span>Buat Catatan Baru</span>
+                </button>
+
+                <!-- Menu Semua Catatan -->
+                <div class="space-y-1">
+                    <button onclick="filterByFolder('all'); if(window.innerWidth < 1024) closeMobileSidebar();" id="navAll"
+                        class="w-full flex items-center justify-between px-3 py-2 rounded-xl bg-indigo-50 text-indigo-600 font-semibold text-sm transition-colors">
+                        <span class="flex items-center space-x-3">
+                            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                    d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10">
+                                </path>
+                            </svg>
+                            <span>Semua Catatan</span>
+                        </span>
+                        <span id="badgeAll"
+                            class="text-xs bg-indigo-100 text-indigo-600 px-2 py-0.5 rounded-md font-bold">0</span>
+                    </button>
+                </div>
+
+                <!-- KALENDER INTERAKTIF (Di Bawah Semua Catatan) -->
+                <div class="bg-gray-50/90 rounded-2xl p-3 border border-gray-200/80 shadow-sm transition-all select-none">
+                    <!-- Header Kalender: Bulan, Tahun & Navigasi -->
+                    <div class="flex items-center justify-between mb-2 pb-1.5 border-b border-gray-200/60">
+                        <div class="flex items-center space-x-1.5">
+                            <svg class="w-3.5 h-3.5 text-indigo-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                    d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"></path>
+                            </svg>
+                            <span id="calMonthYearTitle" class="text-xs font-bold text-gray-800">Oktober 2026</span>
+                        </div>
+                        <div class="flex items-center space-x-0.5">
+                            <button type="button" onclick="changeCalMonth(-1)" title="Bulan Sebelumnya"
+                                class="p-1 text-gray-400 hover:text-indigo-600 hover:bg-white rounded-lg transition-colors">
+                                <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"></path>
+                                </svg>
+                            </button>
+                            <button type="button" onclick="goToTodayCal()" title="Kembali ke Hari Ini"
+                                class="text-[10px] font-bold text-indigo-600 hover:bg-white px-1.5 py-0.5 rounded transition-colors">
+                                Hari Ini
+                            </button>
+                            <button type="button" onclick="changeCalMonth(1)" title="Bulan Berikutnya"
+                                class="p-1 text-gray-400 hover:text-indigo-600 hover:bg-white rounded-lg transition-colors">
+                                <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"></path>
+                                </svg>
+                            </button>
+                        </div>
+                    </div>
+
+                    <!-- Hari dalam Seminggu -->
+                    <div class="grid grid-cols-7 gap-1 text-center mb-1">
+                        <span class="text-[9px] font-bold text-gray-400">Min</span>
+                        <span class="text-[9px] font-bold text-gray-400">Sen</span>
+                        <span class="text-[9px] font-bold text-gray-400">Sel</span>
+                        <span class="text-[9px] font-bold text-gray-400">Rab</span>
+                        <span class="text-[9px] font-bold text-gray-400">Kam</span>
+                        <span class="text-[9px] font-bold text-gray-400">Jum</span>
+                        <span class="text-[9px] font-bold text-gray-400">Sab</span>
+                    </div>
+
+                    <!-- Kotak Tanggal Kalender -->
+                    <div id="calendarGrid" class="grid grid-cols-7 gap-1 text-center text-xs">
+                        <!-- Rendered dynamically -->
+                    </div>
+
+                    <!-- Legenda Kalender Ringkas -->
+                    <div class="mt-2 pt-1.5 border-t border-gray-200/60 flex items-center justify-between text-[9px] text-gray-400 font-medium">
+                        <span class="flex items-center space-x-1">
+                            <span class="w-1.5 h-1.5 rounded-full bg-indigo-600 inline-block"></span>
+                            <span>Catatan</span>
+                        </span>
+                        <span class="flex items-center space-x-1">
+                            <span class="w-1.5 h-1.5 rounded-full bg-amber-500 inline-block"></span>
+                            <span>Pengingat</span>
+                        </span>
+                        <span class="flex items-center space-x-1">
+                            <span class="w-1.5 h-1.5 rounded-full bg-indigo-100 border border-indigo-400 inline-block"></span>
+                            <span>Hari Ini</span>
+                        </span>
+                    </div>
+
+                    <!-- Banner Filter Aktif -->
+                    <div id="calActiveFilterBanner" class="hidden mt-2 pt-2 border-t border-gray-200/60 flex items-center justify-between text-[10px]">
+                        <span class="text-indigo-600 font-semibold truncate" id="calActiveFilterText">Filter aktif</span>
+                        <button type="button" onclick="clearDateFilter()" class="text-red-500 hover:underline font-semibold shrink-0 ml-1">
+                            Reset
+                        </button>
+                    </div>
+                </div>
+
+                <!-- ======================================================= -->
+                <!-- FITUR REMINDER / PENGINGAT (DI BAWAH KALENDER) -->
+                <!-- ======================================================= -->
+                <div class="bg-gradient-to-b from-amber-50/40 to-gray-50/90 rounded-2xl p-3 border border-amber-200/60 shadow-sm transition-all select-none">
+                    <!-- Header Reminder -->
+                    <div class="flex items-center justify-between mb-2 pb-1.5 border-b border-gray-200/60">
+                        <div class="flex items-center space-x-1.5">
+                            <div class="relative">
+                                <svg class="w-3.5 h-3.5 text-amber-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                        d="M15 17h5l-1.405-1.405A2.032 2.032 0 0118 14.158V11a6.002 6.002 0 00-4-5.659V5a2 2 0 10-4 0v.341C7.67 6.165 6 8.388 6 11v3.159c0 .538-.214 1.055-.595 1.436L4 17h5m6 0v1a3 3 0 11-6 0v-1m6 0H9"></path>
+                                </svg>
+                                <span id="reminderPulseDot"
+                                    class="hidden absolute -top-0.5 -right-0.5 w-1.5 h-1.5 bg-amber-500 rounded-full animate-ping"></span>
+                            </div>
+                            <span class="text-xs font-bold text-gray-800">Pengingat</span>
+                            <span id="reminderCountBadge"
+                                class="text-[10px] font-bold bg-amber-100 text-amber-800 px-1.5 py-0.2 rounded-full">0</span>
+                        </div>
+                        <button type="button" onclick="openReminderModal()" title="Tambah Pengingat Baru"
+                            class="text-[11px] font-bold text-indigo-600 hover:text-indigo-800 flex items-center space-x-0.5 hover:underline bg-white px-2 py-0.5 rounded-lg border border-gray-200/80 shadow-2xs transition-all active:scale-95">
+                            <svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"></path>
+                            </svg>
+                            <span>Tambah</span>
+                        </button>
+                    </div>
+
+                    <!-- Filter Tabs Cepat Reminder -->
+                    <div class="flex items-center space-x-1 mb-2 bg-gray-200/60 p-0.5 rounded-lg text-[10px] font-medium text-gray-600">
+                        <button type="button" onclick="setReminderFilter('active')" id="tabRemActive"
+                            class="flex-1 py-0.5 rounded-md text-center bg-white text-indigo-600 font-bold shadow-2xs transition-all">Aktif</button>
+                        <button type="button" onclick="setReminderFilter('today')" id="tabRemToday"
+                            class="flex-1 py-0.5 rounded-md text-center hover:text-indigo-600 transition-all">Hari Ini</button>
+                        <button type="button" onclick="setReminderFilter('completed')" id="tabRemCompleted"
+                            class="flex-1 py-0.5 rounded-md text-center hover:text-indigo-600 transition-all">Selesai</button>
+                    </div>
+
+                    <!-- Status Filter Tanggal Kalender pada Pengingat -->
+                    <div id="reminderDateFilterNotice"
+                        class="hidden mb-2 px-2 py-1 bg-indigo-50 border border-indigo-100 rounded-lg text-[10px] text-indigo-700 flex items-center justify-between">
+                        <span id="reminderDateFilterText" class="truncate font-medium">Filter tanggal</span>
+                        <button type="button" onclick="clearDateFilter()" class="text-red-500 hover:underline shrink-0 ml-1 font-semibold">Semua</button>
+                    </div>
+
+                    <!-- Daftar Pengingat (Scrollable) -->
+                    <div id="remindersListContainer" class="space-y-1.5 max-h-44 overflow-y-auto pr-0.5">
+                        <!-- Rendered dynamically -->
+                    </div>
+                </div>
+
+                <!-- Folder Kategori Section (Dapat Diinput & Dikelola Pengguna) -->
+                <div>
+                    <div class="flex items-center justify-between px-3 mb-2">
+                        <p class="text-[11px] font-bold text-gray-400 uppercase tracking-wider">Kategori Catatan</p>
+                        <button onclick="openCategoryModal()" title="Tambah Kategori Baru"
+                            class="text-xs text-indigo-600 hover:text-indigo-800 font-semibold flex items-center space-x-1 hover:underline">
+                            <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                    d="M12 4v16m8-8H4"></path>
+                            </svg>
+                            <span>Baru</span>
+                        </button>
+                    </div>
+                    <div id="foldersListContainer" class="space-y-0.5 text-sm font-medium text-gray-600">
+                        <!-- Rendered dynamically -->
+                    </div>
+                </div>
+
+                <!-- Tags Section -->
+                <div>
+                    <p class="px-3 text-[11px] font-bold text-gray-400 uppercase tracking-wider mb-2">Tags / Label</p>
+                    <div id="tagsContainer" class="flex flex-wrap gap-1.5 px-3">
+                        <!-- Rendered dynamically -->
+                    </div>
+                </div>
+            </div>
+        </aside>
+
+        <!-- PANEL 2: DAFTAR CATATAN (Tengah / Utama di Mobile List View) -->
+        <section id="notesListSection" class="w-full md:w-72 lg:w-80 bg-white border-r border-gray-200 flex flex-col shrink-0">
+            <div class="p-3.5 sm:p-4 border-b border-gray-100 flex items-center justify-between">
+                <div class="flex items-center space-x-2">
+                    <h2 id="listTitle" class="text-sm font-bold text-gray-900 truncate">Semua Catatan</h2>
+                </div>
+                <span id="listCount" class="text-xs text-gray-400 shrink-0 font-medium">0 dokumen</span>
+            </div>
+
+            <!-- FILTER CEPAT BERDASARKAN STATUS & PRIORITAS -->
+            <div class="px-3 py-2 bg-gray-50/80 border-b border-gray-100 flex items-center space-x-2">
+                <div class="flex-1">
+                    <select id="filterStatus" onchange="handleFilterStatusChange(event)"
+                        class="w-full bg-white border border-gray-200 text-[11px] font-semibold text-gray-700 rounded-lg px-2 py-1 focus:outline-none focus:border-indigo-600 cursor-pointer shadow-2xs">
+                        <option value="all">Status: Semua</option>
+                        <option value="berjalan">⏳ Sedang Berjalan</option>
+                        <option value="selesai">✅ Selesai</option>
+                        <option value="draf">📝 Draf</option>
+                        <option value="review">👀 Butuh Review</option>
+                    </select>
+                </div>
+                <div class="flex-1">
+                    <select id="filterPriority" onchange="handleFilterPriorityChange(event)"
+                        class="w-full bg-white border border-gray-200 text-[11px] font-semibold text-gray-700 rounded-lg px-2 py-1 focus:outline-none focus:border-indigo-600 cursor-pointer shadow-2xs">
+                        <option value="all">Prioritas: Semua</option>
+                        <option value="tinggi">🔥 Tinggi</option>
+                        <option value="sedang">⚡ Sedang</option>
+                        <option value="rendah">☕ Rendah</option>
+                    </select>
+                </div>
+            </div>
+
+            <div id="notesListContainer" class="flex-1 overflow-y-auto divide-y divide-gray-100">
+                <!-- Rendered dynamically -->
+            </div>
+        </section>
+
+        <!-- PANEL 3: AREA BACA & EDITOR CATATAN (Kanan di Desktop, Full-screen di Mobile saat dipilih) -->
+        <main class="flex-1 bg-white flex flex-col overflow-hidden" id="editorMain">
+            <!-- Rendered dynamically -->
+        </main>
+
+    </div>
+
+    <!-- MOBILE BOTTOM NAVIGATION BAR (Khusus Smartphone & Layar Kecil) -->
+    <nav class="md:hidden h-14 bg-white border-t border-gray-200 px-3 flex items-center justify-around shrink-0 z-20 select-none">
+        <button type="button" onclick="switchToNotesListMobile()" id="bottomNavList"
+            class="flex flex-col items-center justify-center text-indigo-600 space-y-0.5 focus:outline-none py-1 px-3">
+            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                    d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10"></path>
+            </svg>
+            <span class="text-[10px] font-bold">Catatan</span>
+        </button>
+
+        <button type="button" onclick="toggleMobileSidebar()" id="bottomNavCal"
+            class="flex flex-col items-center justify-center text-gray-500 hover:text-indigo-600 space-y-0.5 focus:outline-none py-1 px-3">
+            <div class="relative">
+                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                        d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"></path>
+                </svg>
+                <span id="bottomNavReminderDot" class="hidden absolute -top-0.5 -right-0.5 w-2 h-2 bg-amber-500 rounded-full animate-ping"></span>
+            </div>
+            <span class="text-[10px] font-semibold">Kalender</span>
+        </button>
+
+        <!-- Floating Add Note Button -->
+        <button type="button" onclick="openModal()" title="Buat Catatan Baru"
+            class="flex flex-col items-center justify-center -mt-5 bg-indigo-600 hover:bg-indigo-700 text-white w-12 h-12 rounded-full shadow-lg shadow-indigo-600/30 active:scale-90 transition-transform">
+            <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"></path>
+            </svg>
+        </button>
+
+        <button type="button" onclick="openReminderModal()"
+            class="flex flex-col items-center justify-center text-gray-500 hover:text-indigo-600 space-y-0.5 focus:outline-none py-1 px-3">
+            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                    d="M15 17h5l-1.405-1.405A2.032 2.032 0 0118 14.158V11a6.002 6.002 0 00-4-5.659V5a2 2 0 10-4 0v.341C7.67 6.165 6 8.388 6 11v3.159c0 .538-.214 1.055-.595 1.436L4 17h5m6 0v1a3 3 0 11-6 0v-1m6 0H9"></path>
+            </svg>
+            <span class="text-[10px] font-semibold">Pengingat</span>
+        </button>
+
+        <button type="button" onclick="toggleMobileSidebar(true)"
+            class="flex flex-col items-center justify-center text-gray-500 hover:text-indigo-600 space-y-0.5 focus:outline-none py-1 px-3">
+            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                    d="M3 7v10a2 2 0 002 2h14a2 2 0 002-2V9a2 2 0 00-2-2h-6l-2-2H5a2 2 0 00-2 2z"></path>
+            </svg>
+            <span class="text-[10px] font-semibold">Kategori</span>
+        </button>
+    </nav>
+
+    <!-- ======================================================= -->
+    <!-- MODAL POP-UP BUAT CATATAN BARU (RESPONSIF MOBILE/TABLET/DESKTOP) -->
+    <!-- ======================================================= -->
+    <div id="noteModal"
+        class="fixed inset-0 z-50 hidden items-center justify-center p-3 sm:p-4 bg-gray-900/50 backdrop-blur-sm transition-opacity duration-300">
+        <div class="bg-white w-full max-w-2xl rounded-2xl shadow-2xl overflow-hidden transform transition-all duration-300 scale-95 opacity-0 flex flex-col max-h-[92vh]"
+            id="modalContent">
+
+            <div
+                class="px-5 sm:px-6 py-3.5 sm:py-4 border-b border-gray-100 flex items-center justify-between bg-white sticky top-0 z-10">
+                <div class="flex items-center space-x-2">
+                    <div class="bg-indigo-50 p-1.5 rounded-lg text-indigo-600">
+                        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z">
+                            </path>
+                        </svg>
+                    </div>
+                    <h3 class="text-sm sm:text-base font-bold text-gray-900">Buat Catatan Baru</h3>
+                </div>
+                <div class="flex items-center space-x-1.5">
+                    <!-- Tombol Pin Modal -->
+                    <button type="button" id="pinBtn" onclick="togglePinModal()" title="Sematkan Catatan"
+                        class="p-2 text-gray-400 hover:text-indigo-600 hover:bg-gray-100 rounded-lg transition-colors">
+                        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                d="M5 5a2 2 0 012-2h10a2 2 0 012 2v16l-7-3.5L5 21V5z"></path>
+                        </svg>
+                    </button>
+                    <button type="button" onclick="closeModal()"
+                        class="p-2 text-gray-400 hover:text-gray-600 hover:bg-gray-100 rounded-lg transition-colors">
+                        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                d="M6 18L18 6M6 6l12 12"></path>
+                        </svg>
+                    </button>
+                </div>
+            </div>
+
+            <form id="noteForm" onsubmit="handleSaveNewNote(event)" class="flex-1 overflow-y-auto p-4 sm:p-6 space-y-3.5 sm:space-y-4">
+                <!-- Judul Catatan -->
+                <div>
+                    <input type="text" id="modalTitle" placeholder="Judul Catatan / Topik..." required
+                        class="w-full text-xl sm:text-2xl font-bold text-gray-900 placeholder:text-gray-300 border-none focus:outline-none focus:ring-0 p-0">
+                </div>
+
+                <!-- Baris 1: Tanggal & Kategori -->
+                <div class="grid grid-cols-1 sm:grid-cols-2 gap-3 pt-1">
+                    <div>
+                        <label class="block text-[11px] font-bold text-gray-500 uppercase tracking-wider mb-1">Tanggal Catatan</label>
+                        <input type="date" id="modalDate" required
+                            class="w-full bg-gray-50 border border-gray-200 rounded-lg px-3 py-2 text-xs font-medium text-gray-700 focus:outline-none focus:border-indigo-600">
+                    </div>
+                    <div>
+                        <div class="flex items-center justify-between mb-1">
+                            <label class="block text-[11px] font-bold text-gray-500 uppercase tracking-wider">Kategori Catatan</label>
+                            <button type="button" onclick="openCategoryModal()" class="text-[10px] text-indigo-600 hover:underline font-semibold">+ Kategori Baru</button>
+                        </div>
+                        <select id="modalFolder"
+                            class="w-full bg-gray-50 border border-gray-200 rounded-lg px-3 py-2 text-xs font-medium text-gray-700 focus:outline-none focus:border-indigo-600 cursor-pointer capitalize">
+                            <!-- Rendered dynamically -->
+                        </select>
+                    </div>
+                </div>
+
+                <!-- Baris 2: Prioritas & Status Catatan -->
+                <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                    <div>
+                        <label class="block text-[11px] font-bold text-gray-500 uppercase tracking-wider mb-1">Tingkat Prioritas</label>
+                        <select id="modalPriority"
+                            class="w-full bg-gray-50 border border-gray-200 rounded-lg px-3 py-2 text-xs font-medium text-gray-700 focus:outline-none focus:border-indigo-600 cursor-pointer">
+                            <option value="tinggi">🔥 Prioritas Tinggi (Mendesak)</option>
+                            <option value="sedang" selected>⚡ Prioritas Sedang (Normal)</option>
+                            <option value="rendah">☕ Prioritas Rendah (Santai / Fleksibel)</option>
+                        </select>
+                    </div>
+                    <div>
+                        <label class="block text-[11px] font-bold text-gray-500 uppercase tracking-wider mb-1">Status Catatan</label>
+                        <select id="modalStatus"
+                            class="w-full bg-gray-50 border border-gray-200 rounded-lg px-3 py-2 text-xs font-medium text-gray-700 focus:outline-none focus:border-indigo-600 cursor-pointer">
+                            <option value="berjalan" selected>⏳ Sedang Berjalan</option>
+                            <option value="selesai">✅ Selesai</option>
+                            <option value="draf">📝 Draf</option>
+                            <option value="review">👀 Butuh Review</option>
+                        </select>
+                    </div>
+                </div>
+
+                <!-- Baris 3: Rencana Tindak Lanjut & Tenggat Waktu -->
+                <div class="grid grid-cols-1 sm:grid-cols-3 gap-3">
+                    <div class="sm:col-span-2">
+                        <label class="block text-[11px] font-bold text-gray-500 uppercase tracking-wider mb-1">Rencana Tindak Lanjut / Catatan Penting</label>
+                        <input type="text" id="modalAction"
+                            placeholder="Contoh: Selesaikan draf tugas pekan depan atau review kembali data"
+                            class="w-full bg-gray-50 border border-gray-200 rounded-lg px-3 py-2 text-xs font-medium text-gray-700 focus:outline-none focus:border-indigo-600 placeholder:text-gray-400">
+                    </div>
+                    <div>
+                        <label class="block text-[11px] font-bold text-gray-500 uppercase tracking-wider mb-1">Tenggat Waktu</label>
+                        <input type="date" id="modalDeadline"
+                            class="w-full bg-gray-50 border border-gray-200 rounded-lg px-3 py-2 text-xs font-medium text-gray-700 focus:outline-none focus:border-indigo-600">
+                    </div>
+                </div>
+
+                <!-- Checkbox Buat Pengingat Otomatis -->
+                <div class="bg-indigo-50/70 border border-indigo-100 rounded-xl p-3 flex items-center space-x-2.5">
+                    <input type="checkbox" id="modalAutoReminder" checked
+                        class="w-4 h-4 text-indigo-600 rounded border-gray-300 focus:ring-indigo-500 cursor-pointer shrink-0">
+                    <label for="modalAutoReminder" class="text-xs font-medium text-indigo-900 cursor-pointer">
+                        🔔 Tambahkan otomatis ke <strong>Pengingat</strong> berdasarkan tanggal/tenggat
+                    </label>
+                </div>
+
+                <!-- Upload Lampiran Dokumen / Foto -->
+                <div>
+                    <div class="flex items-center justify-between mb-1">
+                        <label class="block text-[11px] font-bold text-gray-500 uppercase tracking-wider">Lampiran File (Foto / Dokumen)</label>
+                        <span class="text-[10px] text-gray-400">Maks: 5 MB</span>
+                    </div>
+                    <input type="file" id="modalFile" onchange="handleFileSelect(event)"
+                        class="w-full text-xs text-gray-500 file:mr-3 file:py-1.5 file:px-3 file:rounded-xl file:border-0 file:text-xs file:font-semibold file:bg-indigo-50 file:text-indigo-600 hover:file:bg-indigo-100 cursor-pointer">
+                    <div id="fileInfoDisplay"
+                        class="hidden mt-2 text-xs font-medium text-indigo-600 bg-indigo-50 p-2 rounded-lg flex items-center justify-between">
+                        <span id="fileInfoText" class="truncate mr-2">File terpilih</span>
+                        <button type="button" onclick="removeSelectedFile()"
+                            class="text-red-600 hover:underline shrink-0">Hapus</button>
+                    </div>
+                </div>
+
+                <!-- Tags / Label -->
+                <div>
+                    <input type="text" id="modalTags"
+                        placeholder="Tag / Label (pisahkan dengan koma, contoh: #ide, #tugas, #penting)"
+                        class="w-full bg-gray-50 border border-gray-200 rounded-lg px-3 py-2 text-xs font-medium text-gray-700 focus:outline-none focus:border-indigo-600 placeholder:text-gray-400">
+                </div>
+
+                <!-- Toolbar & Editor Konten Catatan -->
+                <div>
+                    <label class="block text-[11px] font-bold text-gray-500 uppercase tracking-wider mb-1">Isi Catatan / Keterangan</label>
+                    <div
+                        class="border border-gray-200 rounded-xl overflow-hidden focus-within:border-indigo-600 transition-colors">
+                        <div class="bg-gray-50 border-b border-gray-200 px-2 sm:px-3 py-1.5 flex flex-wrap gap-1 text-gray-600">
+                            <button type="button" onclick="execCmdModal('bold')" title="Bold"
+                                class="p-1 hover:bg-gray-200 rounded font-bold text-xs w-6 h-6 flex items-center justify-center">B</button>
+                            <button type="button" onclick="execCmdModal('italic')" title="Italic"
+                                class="p-1 hover:bg-gray-200 rounded italic text-xs w-6 h-6 flex items-center justify-center">I</button>
+                            <button type="button" onclick="execCmdModal('underline')" title="Underline"
+                                class="p-1 hover:bg-gray-200 rounded underline text-xs w-6 h-6 flex items-center justify-center">U</button>
+                            <span class="w-px h-4 bg-gray-300 my-auto mx-1"></span>
+                            <button type="button" onclick="execCmdModal('formatBlock', '<h1>')" title="Heading 1"
+                                class="p-1 hover:bg-gray-200 rounded font-bold text-xs">H1</button>
+                            <button type="button" onclick="execCmdModal('formatBlock', '<h2>')" title="Heading 2"
+                                class="p-1 hover:bg-gray-200 rounded font-bold text-xs">H2</button>
+                            <span class="w-px h-4 bg-gray-300 my-auto mx-1"></span>
+                            <button type="button" onclick="execCmdModal('insertUnorderedList')" title="Bullet List"
+                                class="p-1 hover:bg-gray-200 rounded text-xs px-1">• List</button>
+                            <button type="button" onclick="execCmdModal('insertOrderedList')" title="Numbered List"
+                                class="p-1 hover:bg-gray-200 rounded text-xs px-1">1. List</button>
+                            <button type="button" onclick="formatMonospaceModal()" title="Monospace"
+                                class="p-1 hover:bg-gray-200 rounded text-xs font-mono-code px-1.5 bg-gray-100">&lt;/&gt;</button>
+                        </div>
+                        <div id="modalContentEditor" contenteditable="true"
+                            data-placeholder="Tulis catatan, ide, rangkuman, atau informasi penting di sini..."
+                            class="editor-content p-3 text-sm text-gray-700 min-h-[140px] max-h-[200px] overflow-y-auto focus:outline-none leading-relaxed">
+                        </div>
+                    </div>
+                </div>
+            </form>
+
+            <div class="px-5 sm:px-6 py-3 bg-gray-50 border-t border-gray-100 flex items-center justify-between">
+                <span class="text-xs text-gray-400 font-semibold hidden sm:inline">MeetBase Smart Notes</span>
+                <div class="flex items-center space-x-2 w-full sm:w-auto justify-end">
+                    <button type="button" onclick="closeModal()"
+                        class="px-4 py-2 text-xs font-semibold text-gray-600 hover:bg-gray-200/60 rounded-xl transition-all">Batal</button>
+                    <button type="submit" form="noteForm"
+                        class="px-4 py-2 text-xs font-semibold bg-indigo-600 hover:bg-indigo-700 text-white rounded-xl shadow-md shadow-indigo-600/20 active:scale-95 transition-all">Simpan
+                        Catatan</button>
+                </div>
+            </div>
+
+        </div>
+    </div>
+
+    <!-- ======================================================= -->
+    <!-- MODAL POP-UP TAMBAH PENGINGAT (REMINDER) -->
+    <!-- ======================================================= -->
+    <div id="reminderModal"
+        class="fixed inset-0 z-50 hidden items-center justify-center p-3 sm:p-4 bg-gray-900/50 backdrop-blur-sm transition-opacity duration-300">
+        <div class="bg-white w-full max-w-md rounded-2xl shadow-2xl overflow-hidden transform transition-all duration-300 scale-95 opacity-0 flex flex-col"
+            id="reminderModalContent">
+
+            <div class="px-5 py-4 border-b border-gray-100 flex items-center justify-between bg-white">
+                <div class="flex items-center space-x-2">
+                    <div class="bg-amber-100 p-1.5 rounded-lg text-amber-600">
+                        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                d="M15 17h5l-1.405-1.405A2.032 2.032 0 0118 14.158V11a6.002 6.002 0 00-4-5.659V5a2 2 0 10-4 0v.341C7.67 6.165 6 8.388 6 11v3.159c0 .538-.214 1.055-.595 1.436L4 17h5m6 0v1a3 3 0 11-6 0v-1m6 0H9"></path>
+                        </svg>
+                    </div>
+                    <h3 class="text-sm sm:text-base font-bold text-gray-900" id="reminderModalHeading">Tambah Pengingat Baru</h3>
+                </div>
+                <button type="button" onclick="closeReminderModal()"
+                    class="p-1.5 text-gray-400 hover:text-gray-600 hover:bg-gray-100 rounded-lg transition-colors">
+                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
+                    </svg>
+                </button>
+            </div>
+
+            <form id="reminderForm" onsubmit="handleSaveReminder(event)" class="p-4 sm:p-5 space-y-3.5">
+                <input type="hidden" id="reminderEditId" value="">
+
+                <div>
+                    <label class="block text-[11px] font-bold text-gray-500 uppercase tracking-wider mb-1">Judul Pengingat</label>
+                    <input type="text" id="reminderTitle" placeholder="Misal: Selesaikan laporan, review materi..." required
+                        class="w-full bg-gray-50 border border-gray-200 rounded-xl px-3 py-2 text-xs font-semibold text-gray-800 focus:outline-none focus:border-indigo-600">
+                </div>
+
+                <div class="grid grid-cols-2 gap-3">
+                    <div>
+                        <label class="block text-[11px] font-bold text-gray-500 uppercase tracking-wider mb-1">Tanggal</label>
+                        <input type="date" id="reminderDate" required
+                            class="w-full bg-gray-50 border border-gray-200 rounded-xl px-3 py-2 text-xs font-medium text-gray-700 focus:outline-none focus:border-indigo-600">
+                    </div>
+                    <div>
+                        <label class="block text-[11px] font-bold text-gray-500 uppercase tracking-wider mb-1">Waktu / Jam</label>
+                        <input type="time" id="reminderTime" value="09:00" required
+                            class="w-full bg-gray-50 border border-gray-200 rounded-xl px-3 py-2 text-xs font-medium text-gray-700 focus:outline-none focus:border-indigo-600">
+                    </div>
+                </div>
+
+                <div>
+                    <label class="block text-[11px] font-bold text-gray-500 uppercase tracking-wider mb-1">Tingkat Urgensi</label>
+                    <select id="reminderPriority"
+                        class="w-full bg-gray-50 border border-gray-200 rounded-xl px-3 py-2 text-xs font-semibold text-gray-700 focus:outline-none focus:border-indigo-600 cursor-pointer">
+                        <option value="tinggi">🔥 Mendesak (Tinggi)</option>
+                        <option value="sedang" selected>⚡ Penting (Sedang)</option>
+                        <option value="rendah">☕ Santai / Normal (Rendah)</option>
+                    </select>
+                </div>
+
+                <div>
+                    <label class="block text-[11px] font-bold text-gray-500 uppercase tracking-wider mb-1">Tautkan ke Catatan (Opsional)</label>
+                    <select id="reminderNoteId"
+                        class="w-full bg-gray-50 border border-gray-200 rounded-xl px-3 py-2 text-xs font-medium text-gray-700 focus:outline-none focus:border-indigo-600 cursor-pointer">
+                        <option value="">-- Tidak ditautkan --</option>
+                    </select>
+                </div>
+
+                <div>
+                    <label class="block text-[11px] font-bold text-gray-500 uppercase tracking-wider mb-1">Catatan Tambahan (Opsional)</label>
+                    <textarea id="reminderNotes" rows="2" placeholder="Keterangan singkat pengingat..."
+                        class="w-full bg-gray-50 border border-gray-200 rounded-xl px-3 py-2 text-xs text-gray-700 focus:outline-none focus:border-indigo-600 resize-none"></textarea>
+                </div>
+
+                <div class="pt-2 flex items-center justify-end space-x-2">
+                    <button type="button" onclick="closeReminderModal()"
+                        class="px-4 py-2 text-xs font-semibold text-gray-600 hover:bg-gray-100 rounded-xl transition-all">Batal</button>
+                    <button type="submit"
+                        class="px-4 py-2 text-xs font-semibold bg-indigo-600 hover:bg-indigo-700 text-white rounded-xl shadow-md shadow-indigo-600/20 active:scale-95 transition-all">Simpan Pengingat</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- ======================================================= -->
+    <!-- MODAL POP-UP TAMBAH KATEGORI CATATAN BARU -->
+    <!-- ======================================================= -->
+    <div id="categoryModal"
+        class="fixed inset-0 z-50 hidden items-center justify-center p-3 sm:p-4 bg-gray-900/50 backdrop-blur-sm transition-opacity duration-300">
+        <div class="bg-white w-full max-w-sm rounded-2xl shadow-2xl overflow-hidden transform transition-all duration-300 scale-95 opacity-0 flex flex-col"
+            id="categoryModalContent">
+
+            <div class="px-5 py-4 border-b border-gray-100 flex items-center justify-between bg-white">
+                <div class="flex items-center space-x-2">
+                    <div class="bg-indigo-50 p-1.5 rounded-lg text-indigo-600">
+                        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                d="M3 7v10a2 2 0 002 2h14a2 2 0 002-2V9a2 2 0 00-2-2h-6l-2-2H5a2 2 0 00-2 2z"></path>
+                        </svg>
+                    </div>
+                    <h3 class="text-sm sm:text-base font-bold text-gray-900">Buat Kategori Catatan</h3>
+                </div>
+                <button type="button" onclick="closeCategoryModal()"
+                    class="p-1.5 text-gray-400 hover:text-gray-600 hover:bg-gray-100 rounded-lg transition-colors">
+                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
+                    </svg>
+                </button>
+            </div>
+
+            <form id="categoryForm" onsubmit="handleSaveCategory(event)" class="p-4 sm:p-5 space-y-3.5">
+                <div>
+                    <label class="block text-[11px] font-bold text-gray-500 uppercase tracking-wider mb-1">Nama Kategori</label>
+                    <input type="text" id="categoryName" placeholder="Contoh: Belajar, Kerja, Proyek, Pribadi..." required
+                        class="w-full bg-gray-50 border border-gray-200 rounded-xl px-3 py-2 text-xs font-semibold text-gray-800 focus:outline-none focus:border-indigo-600">
+                </div>
+
+                <!-- Pilihan Warna Aksen Kategori -->
+                <div>
+                    <label class="block text-[11px] font-bold text-gray-500 uppercase tracking-wider mb-1">Pilihan Warna Aksen</label>
+                    <div class="flex items-center space-x-2 pt-1" id="colorPickerContainer">
+                        <label class="cursor-pointer">
+                            <input type="radio" name="catColor" value="indigo" checked class="peer sr-only">
+                            <div class="w-6 h-6 rounded-full bg-indigo-500 ring-offset-2 peer-checked:ring-2 peer-checked:ring-indigo-600 transition-all"></div>
+                        </label>
+                        <label class="cursor-pointer">
+                            <input type="radio" name="catColor" value="blue" class="peer sr-only">
+                            <div class="w-6 h-6 rounded-full bg-blue-500 ring-offset-2 peer-checked:ring-2 peer-checked:ring-blue-600 transition-all"></div>
+                        </label>
+                        <label class="cursor-pointer">
+                            <input type="radio" name="catColor" value="emerald" class="peer sr-only">
+                            <div class="w-6 h-6 rounded-full bg-emerald-500 ring-offset-2 peer-checked:ring-2 peer-checked:ring-emerald-600 transition-all"></div>
+                        </label>
+                        <label class="cursor-pointer">
+                            <input type="radio" name="catColor" value="amber" class="peer sr-only">
+                            <div class="w-6 h-6 rounded-full bg-amber-500 ring-offset-2 peer-checked:ring-2 peer-checked:ring-amber-600 transition-all"></div>
+                        </label>
+                        <label class="cursor-pointer">
+                            <input type="radio" name="catColor" value="rose" class="peer sr-only">
+                            <div class="w-6 h-6 rounded-full bg-rose-500 ring-offset-2 peer-checked:ring-2 peer-checked:ring-rose-600 transition-all"></div>
+                        </label>
+                        <label class="cursor-pointer">
+                            <input type="radio" name="catColor" value="purple" class="peer sr-only">
+                            <div class="w-6 h-6 rounded-full bg-purple-500 ring-offset-2 peer-checked:ring-2 peer-checked:ring-purple-600 transition-all"></div>
+                        </label>
+                        <label class="cursor-pointer">
+                            <input type="radio" name="catColor" value="teal" class="peer sr-only">
+                            <div class="w-6 h-6 rounded-full bg-teal-500 ring-offset-2 peer-checked:ring-2 peer-checked:ring-teal-600 transition-all"></div>
+                        </label>
+                    </div>
+                </div>
+
+                <!-- Pilihan Ikon -->
+                <div>
+                    <label class="block text-[11px] font-bold text-gray-500 uppercase tracking-wider mb-1">Ikon Representasi</label>
+                    <div class="grid grid-cols-6 gap-2 text-center text-sm pt-1">
+                        <label class="cursor-pointer">
+                            <input type="radio" name="catIcon" value="📁" checked class="peer sr-only">
+                            <div class="p-1.5 rounded-lg border border-gray-200 peer-checked:bg-indigo-50 peer-checked:border-indigo-600 transition-all">📁</div>
+                        </label>
+                        <label class="cursor-pointer">
+                            <input type="radio" name="catIcon" value="🎓" class="peer sr-only">
+                            <div class="p-1.5 rounded-lg border border-gray-200 peer-checked:bg-indigo-50 peer-checked:border-indigo-600 transition-all">🎓</div>
+                        </label>
+                        <label class="cursor-pointer">
+                            <input type="radio" name="catIcon" value="💼" class="peer sr-only">
+                            <div class="p-1.5 rounded-lg border border-gray-200 peer-checked:bg-indigo-50 peer-checked:border-indigo-600 transition-all">💼</div>
+                        </label>
+                        <label class="cursor-pointer">
+                            <input type="radio" name="catIcon" value="🚀" class="peer sr-only">
+                            <div class="p-1.5 rounded-lg border border-gray-200 peer-checked:bg-indigo-50 peer-checked:border-indigo-600 transition-all">🚀</div>
+                        </label>
+                        <label class="cursor-pointer">
+                            <input type="radio" name="catIcon" value="💡" class="peer sr-only">
+                            <div class="p-1.5 rounded-lg border border-gray-200 peer-checked:bg-indigo-50 peer-checked:border-indigo-600 transition-all">💡</div>
+                        </label>
+                        <label class="cursor-pointer">
+                            <input type="radio" name="catIcon" value="🎯" class="peer sr-only">
+                            <div class="p-1.5 rounded-lg border border-gray-200 peer-checked:bg-indigo-50 peer-checked:border-indigo-600 transition-all">🎯</div>
+                        </label>
+                    </div>
+                </div>
+
+                <div class="pt-2 flex items-center justify-end space-x-2">
+                    <button type="button" onclick="closeCategoryModal()"
+                        class="px-4 py-2 text-xs font-semibold text-gray-600 hover:bg-gray-100 rounded-xl transition-all">Batal</button>
+                    <button type="submit"
+                        class="px-4 py-2 text-xs font-semibold bg-indigo-600 hover:bg-indigo-700 text-white rounded-xl shadow-md shadow-indigo-600/20 active:scale-95 transition-all">Simpan Kategori</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- ======================================================= -->
+    <!-- JAVASCRIPT FULL LOGIC (MEETBASE RESPONSIVE ENGINE) -->
+    <!-- ======================================================= -->
+    <script>
+        const MAX_FILE_SIZE = 5 * 1024 * 1024; // 5 MB
+
+        // Daftar kategori (slug)
+        let folders = JSON.parse(localStorage.getItem('meetbase_folders')) || ['perkuliahan', 'organisasi', 'proyek', 'pribadi'];
+
+        // Metadata detail kategori (nama, warna, ikon)
+        let categoryMeta = JSON.parse(localStorage.getItem('meetbase_category_meta')) || {
+            perkuliahan: { name: 'Perkuliahan', color: 'blue', icon: '🎓' },
+            organisasi: { name: 'Organisasi', color: 'indigo', icon: '👥' },
+            proyek: { name: 'Proyek', color: 'amber', icon: '🚀' },
+            pribadi: { name: 'Pribadi', color: 'emerald', icon: '📁' }
+        };
+
+        function getCurrentUserEmail() {
+            try {
+                const storedUser = localStorage.getItem('meetbase_user');
+                if (storedUser) {
+                    const u = JSON.parse(storedUser);
+                    if (u && u.email) return u.email.toLowerCase().trim();
+                }
+            } catch (e) {}
+            return null;
+        }
+
+        function loadUserNotes() {
+            const email = getCurrentUserEmail();
+            if (email) {
+                const userNotes = localStorage.getItem('meetbase_notes_' + email);
+                if (userNotes !== null) {
+                    try { return JSON.parse(userNotes); } catch (e) { return []; }
+                }
+            }
+            const generalNotes = localStorage.getItem('meetbase_general_notes');
+            if (generalNotes !== null) {
+                try { return JSON.parse(generalNotes); } catch (e) { return []; }
+            }
+            // Akun baru dibuat -> default bersih dan kosong!
+            return [];
+        }
+
+        function loadUserReminders() {
+            const email = getCurrentUserEmail();
+            if (email) {
+                const userRem = localStorage.getItem('meetbase_reminders_' + email);
+                if (userRem !== null) {
+                    try { return JSON.parse(userRem); } catch (e) { return []; }
+                }
+            }
+            const generalRem = localStorage.getItem('meetbase_reminders');
+            if (generalRem !== null) {
+                try { return JSON.parse(generalRem); } catch (e) { return []; }
+            }
+            // Akun baru dibuat -> default bersih dan kosong!
+            return [];
+        }
+
+        // Data Catatan (Otomatis Kosong untuk akun baru, atau memuat catatan yang pernah dibuat)
+        let notes = loadUserNotes();
+
+        // Data Pengingat (Reminders)
+        let reminders = loadUserReminders();
+
+        // State Dashboard
+        let activeNoteId = notes.length > 0 ? notes[0].id : null;
+        let currentFilter = 'all';
+        let filterStatusVal = 'all';
+        let filterPriorityVal = 'all';
+        let searchQuery = '';
+        let isModalPinned = false;
+        let selectedFileName = "";
+        let selectedFileSize = "";
+        let currentReminderTab = 'active'; // 'active', 'today', 'completed'
+        let mobileCurrentView = 'list'; // 'list' or 'editor' on smartphone screen
+
+        // State Kalender Interaktif
+        const indoMonthNames = [
+            "Januari", "Februari", "Maret", "April", "Mei", "Juni",
+            "Juli", "Agustus", "September", "Oktober", "November", "Desember"
+        ];
+        let calCurrentYear = 2026;
+        let calCurrentMonth = 9; // Oktober (0-indexed)
+        let selectedCalendarDate = null;
+
+        window.onload = function () {
+            const today = new Date();
+            calCurrentYear = today.getFullYear();
+            calCurrentMonth = today.getMonth();
+            renderApp();
+            updateResponsiveLayout();
+        };
+
+        function saveToLocalStorage() {
+            const email = getCurrentUserEmail();
+            if (email) {
+                localStorage.setItem('meetbase_notes_' + email, JSON.stringify(notes));
+                localStorage.setItem('meetbase_reminders_' + email, JSON.stringify(reminders));
+            }
+            localStorage.setItem('meetbase_general_notes', JSON.stringify(notes));
+            localStorage.setItem('meetbase_folders', JSON.stringify(folders));
+            localStorage.setItem('meetbase_category_meta', JSON.stringify(categoryMeta));
+            localStorage.setItem('meetbase_reminders', JSON.stringify(reminders));
+        }
+
+        function renderApp() {
+            loadUserProfile();
+            renderCalendar();
+            renderReminders();
+            renderFoldersList();
+            renderSidebarCounts();
+            renderTagsList();
+            renderNotesList();
+            renderEditor();
+            populateFolderDropdowns();
+            populateReminderNotesDropdown();
+            updateTodayReminderAlert();
+        }
+
+        // ==========================================
+        // SISTEM RESPONSIF MOBILE & DEVICE LAINNYA
+        // ==========================================
+        function toggleMobileSidebar(scrollToCategories = false) {
+            const sidebar = document.getElementById('mainSidebar');
+            const backdrop = document.getElementById('mobileSidebarBackdrop');
+            if (!sidebar || !backdrop) return;
+
+            const isClosed = sidebar.classList.contains('-translate-x-full');
+            if (isClosed) {
+                openMobileSidebar();
+                if (scrollToCategories) {
+                    setTimeout(() => {
+                        const catEl = document.getElementById('foldersListContainer');
+                        if (catEl) catEl.scrollIntoView({ behavior: 'smooth' });
+                    }, 250);
+                }
+            } else {
+                closeMobileSidebar();
+            }
+        }
+
+        function openMobileSidebar() {
+            const sidebar = document.getElementById('mainSidebar');
+            const backdrop = document.getElementById('mobileSidebarBackdrop');
+            if (!sidebar || !backdrop) return;
+            backdrop.classList.remove('hidden');
+            setTimeout(() => {
+                backdrop.classList.remove('opacity-0');
+                backdrop.classList.add('opacity-100');
+                sidebar.classList.remove('-translate-x-full');
+                sidebar.classList.add('translate-x-0');
+            }, 10);
+        }
+
+        function closeMobileSidebar() {
+            const sidebar = document.getElementById('mainSidebar');
+            const backdrop = document.getElementById('mobileSidebarBackdrop');
+            if (!sidebar || !backdrop) return;
+            sidebar.classList.remove('translate-x-0');
+            sidebar.classList.add('-translate-x-full');
+            backdrop.classList.remove('opacity-100');
+            backdrop.classList.add('opacity-0');
+            setTimeout(() => {
+                backdrop.classList.add('hidden');
+            }, 300);
+        }
+
+        function switchToNotesListMobile() {
+            mobileCurrentView = 'list';
+            updateResponsiveLayout();
+        }
+
+        function switchToEditorMobile() {
+            mobileCurrentView = 'editor';
+            updateResponsiveLayout();
+        }
+
+        function updateResponsiveLayout() {
+            const listSection = document.getElementById('notesListSection');
+            const editorMain = document.getElementById('editorMain');
+            const bottomNavList = document.getElementById('bottomNavList');
+            if (!listSection || !editorMain) return;
+
+            if (window.innerWidth < 768) {
+                // Smartphone mode: toggle between list and editor
+                if (mobileCurrentView === 'list') {
+                    listSection.classList.remove('hidden');
+                    listSection.classList.add('flex', 'w-full');
+                    editorMain.classList.add('hidden');
+                    editorMain.classList.remove('flex');
+
+                    if (bottomNavList) {
+                        bottomNavList.classList.add('text-indigo-600');
+                        bottomNavList.classList.remove('text-gray-500');
+                    }
+                } else {
+                    listSection.classList.add('hidden');
+                    listSection.classList.remove('flex', 'w-full');
+                    editorMain.classList.remove('hidden');
+                    editorMain.classList.add('flex', 'w-full');
+
+                    if (bottomNavList) {
+                        bottomNavList.classList.remove('text-indigo-600');
+                        bottomNavList.classList.add('text-gray-500');
+                    }
+                }
+            } else {
+                // Tablet & Desktop: both side-by-side
+                listSection.classList.remove('hidden', 'w-full');
+                listSection.classList.add('flex');
+                editorMain.classList.remove('hidden', 'w-full');
+                editorMain.classList.add('flex');
+            }
+        }
+
+        window.addEventListener('resize', updateResponsiveLayout);
+
+        function loadUserProfile() {
+            try {
+                const storedUser = localStorage.getItem('meetbase_user');
+                if (storedUser) {
+                    const user = JSON.parse(storedUser);
+                    if (user && user.name) {
+                        const nameEl = document.getElementById('userNameDisplay');
+                        const roleEl = document.getElementById('userRoleDisplay');
+                        const avatarEl = document.getElementById('userAvatarInitials');
+                        const dropName = document.getElementById('dropdownName');
+                        const dropEmail = document.getElementById('dropdownEmail');
+
+                        if (nameEl) nameEl.textContent = user.name;
+                        if (dropName) dropName.textContent = user.name;
+                        if (dropEmail && user.email) dropEmail.textContent = user.email;
+                        if (roleEl && user.role) roleEl.textContent = user.role;
+
+                        const words = user.name.trim().split(/\s+/);
+                        const initials = words.length > 1
+                            ? (words[0][0] + words[1][0]).toUpperCase()
+                            : words[0].substring(0, 2).toUpperCase();
+                        if (avatarEl) avatarEl.textContent = initials || 'MB';
+                    }
+                }
+            } catch (err) {
+                console.error("Gagal membaca profil pengguna", err);
+            }
+        }
+
+        function toggleUserDropdown(e) {
+            e.stopPropagation();
+            const dropdown = document.getElementById('userDropdown');
+            if (dropdown) dropdown.classList.toggle('hidden');
+        }
+
+        window.addEventListener('click', function (e) {
+            const dropdown = document.getElementById('userDropdown');
+            const wrapper = document.getElementById('userMenuWrapper');
+            if (dropdown && !dropdown.classList.contains('hidden') && wrapper && !wrapper.contains(e.target)) {
+                dropdown.classList.add('hidden');
+            }
+        });
+
+        function handleLogout(event) {
+            event.preventDefault();
+            if (confirm('Apakah Anda yakin ingin keluar dari MeetBase?')) {
+                localStorage.removeItem('meetbase_user');
+                showPageTransition('login.html', 'Mengakhiri sesi dan keluar...');
+            }
+        }
+
+        function formatIsoDate(year, monthIndex, day) {
+            const m = String(monthIndex + 1).padStart(2, '0');
+            const d = String(day).padStart(2, '0');
+            return `${year}-${m}-${d}`;
+        }
+
+        function getTodayIsoDate() {
+            const t = new Date();
+            return formatIsoDate(t.getFullYear(), t.getMonth(), t.getDate());
+        }
+
+        // ==========================================
+        // LOGIKA WIDGET KALENDER INTERAKTIF
+        // ==========================================
+        function changeCalMonth(delta) {
+            calCurrentMonth += delta;
+            if (calCurrentMonth < 0) {
+                calCurrentMonth = 11;
+                calCurrentYear--;
+            } else if (calCurrentMonth > 11) {
+                calCurrentMonth = 0;
+                calCurrentYear++;
+            }
+            renderCalendar();
+        }
+
+        function goToTodayCal() {
+            const today = new Date();
+            calCurrentYear = today.getFullYear();
+            calCurrentMonth = today.getMonth();
+            const todayStr = formatIsoDate(calCurrentYear, calCurrentMonth, today.getDate());
+            selectCalendarDate(todayStr);
+        }
+
+        function renderCalendar() {
+            const titleEl = document.getElementById('calMonthYearTitle');
+            if (titleEl) {
+                titleEl.textContent = `${indoMonthNames[calCurrentMonth]} ${calCurrentYear}`;
+            }
+
+            const grid = document.getElementById('calendarGrid');
+            if (!grid) return;
+
+            const noteDatesMap = {};
+            notes.forEach(note => {
+                if (note.date) {
+                    noteDatesMap[note.date] = (noteDatesMap[note.date] || 0) + 1;
+                }
+            });
+
+            const reminderDatesMap = {};
+            reminders.forEach(r => {
+                if (r.date && !r.completed) {
+                    reminderDatesMap[r.date] = (reminderDatesMap[r.date] || 0) + 1;
+                }
+            });
+
+            const firstDayIndex = new Date(calCurrentYear, calCurrentMonth, 1).getDay(); // 0 = Minggu
+            const daysInMonth = new Date(calCurrentYear, calCurrentMonth + 1, 0).getDate();
+            const prevMonthDays = new Date(calCurrentYear, calCurrentMonth, 0).getDate();
+
+            const todayStr = getTodayIsoDate();
+            let html = '';
+
+            // Hari dari bulan sebelumnya
+            for (let i = firstDayIndex - 1; i >= 0; i--) {
+                const dayNum = prevMonthDays - i;
+                html += `<div class="h-6 flex items-center justify-center text-gray-300 text-[10px] rounded-lg">${dayNum}</div>`;
+            }
+
+            // Hari di bulan aktif
+            for (let day = 1; day <= daysInMonth; day++) {
+                const dateStr = formatIsoDate(calCurrentYear, calCurrentMonth, day);
+                const isSelected = selectedCalendarDate === dateStr;
+                const isToday = todayStr === dateStr;
+                const hasNotes = Boolean(noteDatesMap[dateStr]);
+                const hasReminders = Boolean(reminderDatesMap[dateStr]);
+
+                let cellClasses = "h-6 flex flex-col items-center justify-center text-[10px] rounded-lg cursor-pointer transition-all relative ";
+
+                if (isSelected) {
+                    cellClasses += "bg-indigo-600 text-white font-bold shadow-sm shadow-indigo-600/30 ";
+                } else if (isToday) {
+                    cellClasses += "bg-indigo-50 text-indigo-600 font-bold border border-indigo-200 hover:bg-indigo-100 ";
+                } else if (hasNotes || hasReminders) {
+                    cellClasses += "text-gray-900 font-bold hover:bg-gray-200/70 ";
+                } else {
+                    cellClasses += "text-gray-600 hover:bg-gray-200/50 ";
+                }
+
+                let dotsHtml = '';
+                if (hasNotes && hasReminders) {
+                    dotsHtml = `
+                        <span class="flex items-center space-x-0.5 absolute bottom-0.5">
+                            <span class="w-1 h-1 rounded-full ${isSelected ? 'bg-white' : 'bg-indigo-600'}"></span>
+                            <span class="w-1 h-1 rounded-full ${isSelected ? 'bg-amber-200' : 'bg-amber-500'}"></span>
+                        </span>
+                    `;
+                } else if (hasNotes) {
+                    dotsHtml = `<span class="w-1 h-1 rounded-full ${isSelected ? 'bg-white' : 'bg-indigo-600'} absolute bottom-0.5"></span>`;
+                } else if (hasReminders) {
+                    dotsHtml = `<span class="w-1 h-1 rounded-full ${isSelected ? 'bg-amber-200' : 'bg-amber-500'} absolute bottom-0.5"></span>`;
+                }
+
+                const tooltip = `${dateStr} (${noteDatesMap[dateStr] || 0} catatan, ${reminderDatesMap[dateStr] || 0} pengingat)`;
+
+                html += `
+                    <button type="button" onclick="selectCalendarDate('${dateStr}')" title="${tooltip}" class="${cellClasses}">
+                        <span class="${hasNotes || hasReminders ? '-mt-0.5' : ''}">${day}</span>
+                        ${dotsHtml}
+                    </button>
+                `;
+            }
+
+            // Sisa baris hari dari bulan berikutnya
+            const totalCells = firstDayIndex + daysInMonth;
+            const remainingCells = (7 - (totalCells % 7)) % 7;
+            for (let j = 1; j <= remainingCells; j++) {
+                html += `<div class="h-6 flex items-center justify-center text-gray-300 text-[10px] rounded-lg">${j}</div>`;
+            }
+
+            grid.innerHTML = html;
+
+            // Banner status filter kalender aktif
+            const banner = document.getElementById('calActiveFilterBanner');
+            const bannerText = document.getElementById('calActiveFilterText');
+            if (selectedCalendarDate) {
+                if (banner) {
+                    banner.classList.remove('hidden');
+                    banner.classList.add('flex');
+                }
+                if (bannerText) {
+                    const parts = selectedCalendarDate.split('-');
+                    const d = parseInt(parts[2], 10);
+                    const m = indoMonthNames[parseInt(parts[1], 10) - 1] || '';
+                    const y = parts[0];
+                    bannerText.textContent = `📅 ${d} ${m} ${y}`;
+                }
+            } else {
+                if (banner) {
+                    banner.classList.remove('flex');
+                    banner.classList.add('hidden');
+                }
+            }
+        }
+
+        function selectCalendarDate(dateStr) {
+            if (selectedCalendarDate === dateStr) {
+                clearDateFilter();
+                return;
+            }
+            selectedCalendarDate = dateStr;
+            currentFilter = 'date:' + dateStr;
+            highlightActiveNav('none');
+            renderCalendar();
+            renderReminders();
+            renderNotesList();
+
+            if (window.innerWidth < 1024) {
+                closeMobileSidebar();
+                switchToNotesListMobile();
+            }
+        }
+
+        function clearDateFilter() {
+            selectedCalendarDate = null;
+            currentFilter = 'all';
+            highlightActiveNav('all');
+            renderCalendar();
+            renderReminders();
+            renderNotesList();
+        }
+
+        function openModalWithDate(dateStr) {
+            openModal();
+            if (dateStr) {
+                const dateInput = document.getElementById('modalDate');
+                if (dateInput) dateInput.value = dateStr;
+            }
+        }
+
+        // ==========================================
+        // LOGIKA FITUR REMINDER (DI BAWAH KALENDER)
+        // ==========================================
+        function setReminderFilter(tab) {
+            currentReminderTab = tab;
+            const tabActive = document.getElementById('tabRemActive');
+            const tabToday = document.getElementById('tabRemToday');
+            const tabCompleted = document.getElementById('tabRemCompleted');
+
+            [tabActive, tabToday, tabCompleted].forEach(el => {
+                if (el) {
+                    el.className = "flex-1 py-0.5 rounded-md text-center hover:text-indigo-600 transition-all text-gray-600";
+                }
+            });
+
+            if (tab === 'active' && tabActive) {
+                tabActive.className = "flex-1 py-0.5 rounded-md text-center bg-white text-indigo-600 font-bold shadow-2xs transition-all";
+            } else if (tab === 'today' && tabToday) {
+                tabToday.className = "flex-1 py-0.5 rounded-md text-center bg-white text-indigo-600 font-bold shadow-2xs transition-all";
+            } else if (tab === 'completed' && tabCompleted) {
+                tabCompleted.className = "flex-1 py-0.5 rounded-md text-center bg-white text-indigo-600 font-bold shadow-2xs transition-all";
+            }
+
+            renderReminders();
+        }
+
+        function renderReminders() {
+            const container = document.getElementById('remindersListContainer');
+            const countBadge = document.getElementById('reminderCountBadge');
+            const pulseDot = document.getElementById('reminderPulseDot');
+            const bottomNavPulse = document.getElementById('bottomNavReminderDot');
+            const noticeBox = document.getElementById('reminderDateFilterNotice');
+            const noticeText = document.getElementById('reminderDateFilterText');
+
+            if (!container) return;
+
+            const todayIso = getTodayIsoDate();
+            const uncompletedCount = reminders.filter(r => !r.completed).length;
+
+            if (countBadge) countBadge.textContent = uncompletedCount;
+            if (pulseDot) {
+                if (uncompletedCount > 0) pulseDot.classList.remove('hidden');
+                else pulseDot.classList.add('hidden');
+            }
+            if (bottomNavPulse) {
+                if (uncompletedCount > 0) bottomNavPulse.classList.remove('hidden');
+                else bottomNavPulse.classList.add('hidden');
+            }
+
+            if (selectedCalendarDate) {
+                if (noticeBox) noticeBox.classList.remove('hidden');
+                if (noticeText) {
+                    const parts = selectedCalendarDate.split('-');
+                    const d = parseInt(parts[2], 10);
+                    const m = indoMonthNames[parseInt(parts[1], 10) - 1] || '';
+                    noticeText.textContent = `📅 Filter: ${d} ${m}`;
+                }
+            } else {
+                if (noticeBox) noticeBox.classList.add('hidden');
+            }
+
+            let filtered = reminders.filter(r => {
+                if (selectedCalendarDate && r.date !== selectedCalendarDate) {
+                    return false;
+                }
+                if (currentReminderTab === 'active') return !r.completed;
+                if (currentReminderTab === 'today') return r.date === todayIso;
+                if (currentReminderTab === 'completed') return r.completed;
+                return true;
+            });
+
+            filtered.sort((a, b) => {
+                if (a.completed !== b.completed) return a.completed ? 1 : -1;
+                return (a.date + ' ' + (a.time || '')) > (b.date + ' ' + (b.time || '')) ? 1 : -1;
+            });
+
+            if (filtered.length === 0) {
+                let emptyMsg = "Belum ada pengingat.";
+                if (selectedCalendarDate) emptyMsg = "Tidak ada pengingat di tanggal ini.";
+                else if (currentReminderTab === 'today') emptyMsg = "Tidak ada pengingat untuk hari ini.";
+                else if (currentReminderTab === 'completed') emptyMsg = "Belum ada pengingat selesai.";
+
+                container.innerHTML = `
+                    <div class="p-3 text-center text-[11px] text-gray-400 bg-white/70 rounded-xl border border-gray-100">
+                        <p>${emptyMsg}</p>
+                        <button type="button" onclick="openReminderModal('${selectedCalendarDate || ''}')"
+                            class="mt-1 text-indigo-600 hover:underline font-bold text-[10px] inline-flex items-center space-x-1">
+                            <span>+ Tambah Pengingat</span>
+                        </button>
+                    </div>
+                `;
+                return;
+            }
+
+            let html = '';
+            filtered.forEach(r => {
+                const isOverdue = !r.completed && r.date < todayIso;
+                const isToday = r.date === todayIso;
+
+                let prioBadge = '';
+                if (r.priority === 'tinggi') {
+                    prioBadge = `<span class="text-[9px] font-bold text-rose-600 bg-rose-50 px-1.5 py-0.2 rounded border border-rose-200">🔥 Mendesak</span>`;
+                } else if (r.priority === 'sedang') {
+                    prioBadge = `<span class="text-[9px] font-bold text-amber-600 bg-amber-50 px-1.5 py-0.2 rounded border border-amber-200">⚡ Penting</span>`;
+                } else {
+                    prioBadge = `<span class="text-[9px] font-medium text-gray-500 bg-gray-100 px-1.5 py-0.2 rounded">☕ Normal</span>`;
+                }
+
+                let dateBadge = '';
+                if (isToday) {
+                    dateBadge = `<span class="text-[9px] font-bold text-indigo-600 bg-indigo-50 px-1.5 py-0.2 rounded">Hari ini ${r.time ? '• ' + r.time : ''}</span>`;
+                } else if (isOverdue) {
+                    dateBadge = `<span class="text-[9px] font-bold text-red-600 bg-red-50 px-1.5 py-0.2 rounded">⚠️ Terlewat (${r.date})</span>`;
+                } else if (r.date) {
+                    const p = r.date.split('-');
+                    const d = parseInt(p[2], 10);
+                    const m = indoMonthNames[parseInt(p[1], 10) - 1] ? indoMonthNames[parseInt(p[1], 10) - 1].substring(0, 3) : '';
+                    dateBadge = `<span class="text-[9px] text-gray-500 bg-gray-100 px-1.5 py-0.2 rounded">${d} ${m} ${r.time ? '• ' + r.time : ''}</span>`;
+                }
+
+                let noteLinkBtn = '';
+                if (r.noteId) {
+                    const linked = notes.find(n => n.id === r.noteId);
+                    if (linked) {
+                        noteLinkBtn = `
+                            <button type="button" onclick="selectNote(${r.noteId}); if(window.innerWidth < 1024) closeMobileSidebar();" title="Buka Catatan: ${linked.title}"
+                                class="text-[9px] text-indigo-600 hover:text-indigo-800 bg-indigo-50/80 px-1.5 py-0.5 rounded truncate max-w-[120px] font-medium flex items-center space-x-1">
+                                <span>📝 ${linked.title}</span>
+                            </button>
+                        `;
+                    }
+                }
+
+                html += `
+                    <div class="p-2 bg-white rounded-xl border ${r.completed ? 'border-gray-100 opacity-60 bg-gray-50/50' : 'border-gray-200/90 shadow-2xs hover:border-indigo-300'} transition-all group">
+                        <div class="flex items-start space-x-2">
+                            <button type="button" onclick="toggleReminderStatus(${r.id})" class="mt-0.5 text-gray-400 hover:text-emerald-600 transition-colors shrink-0">
+                                ${r.completed
+                                    ? '<svg class="w-4 h-4 text-emerald-600 fill-emerald-600" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd"/></svg>'
+                                    : '<svg class="w-4 h-4 hover:stroke-indigo-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><circle cx="12" cy="12" r="9" stroke-width="2"></circle></svg>'
+                                }
+                            </button>
+                            <div class="flex-1 min-w-0">
+                                <p class="text-[11px] font-semibold text-gray-900 leading-snug break-words ${r.completed ? 'line-through text-gray-400' : ''}">${r.title}</p>
+                                <div class="flex flex-wrap items-center gap-1 mt-1">
+                                    ${prioBadge}
+                                    ${dateBadge}
+                                    ${noteLinkBtn}
+                                </div>
+                            </div>
+                            <div class="flex items-center space-x-0.5 opacity-80 sm:opacity-0 group-hover:opacity-100 transition-opacity shrink-0">
+                                <button type="button" onclick="deleteReminder(${r.id})" title="Hapus Pengingat"
+                                    class="p-1 text-gray-300 hover:text-red-500 rounded transition-colors">
+                                    <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"></path>
+                                    </svg>
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                `;
+            });
+
+            container.innerHTML = html;
+        }
+
+        function toggleReminderStatus(id) {
+            const r = reminders.find(item => item.id === id);
+            if (r) {
+                r.completed = !r.completed;
+                saveToLocalStorage();
+                renderReminders();
+                renderCalendar();
+                updateTodayReminderAlert();
+            }
+        }
+
+        function deleteReminder(id) {
+            if (confirm('Hapus pengingat ini?')) {
+                reminders = reminders.filter(item => item.id !== id);
+                saveToLocalStorage();
+                renderReminders();
+                renderCalendar();
+                updateTodayReminderAlert();
+            }
+        }
+
+        function openReminderModal(defaultDate = null, linkedNoteId = null) {
+            const modal = document.getElementById('reminderModal');
+            const content = document.getElementById('reminderModalContent');
+            const form = document.getElementById('reminderForm');
+            if (form) form.reset();
+
+            document.getElementById('reminderEditId').value = "";
+            document.getElementById('reminderModalHeading').textContent = "Tambah Pengingat Baru";
+
+            const dateInput = document.getElementById('reminderDate');
+            if (dateInput) {
+                dateInput.value = defaultDate || selectedCalendarDate || getTodayIsoDate();
+            }
+
+            populateReminderNotesDropdown(linkedNoteId);
+
+            modal.classList.remove('hidden');
+            modal.classList.add('flex');
+            setTimeout(() => {
+                content.classList.remove('scale-95', 'opacity-0');
+                content.classList.add('scale-100', 'opacity-100');
+            }, 10);
+        }
+
+        function closeReminderModal() {
+            const modal = document.getElementById('reminderModal');
+            const content = document.getElementById('reminderModalContent');
+            content.classList.remove('scale-100', 'opacity-100');
+            content.classList.add('scale-95', 'opacity-0');
+            setTimeout(() => {
+                modal.classList.remove('flex');
+                modal.classList.add('hidden');
+            }, 200);
+        }
+
+        function populateReminderNotesDropdown(selectedId = null) {
+            const select = document.getElementById('reminderNoteId');
+            if (!select) return;
+            let html = '<option value="">-- Tidak ditautkan --</option>';
+            notes.forEach(n => {
+                const isSel = selectedId && Number(selectedId) === Number(n.id);
+                html += `<option value="${n.id}" ${isSel ? 'selected' : ''}>${n.title}</option>`;
+            });
+            select.innerHTML = html;
+        }
+
+        function handleSaveReminder(event) {
+            event.preventDefault();
+            const title = document.getElementById('reminderTitle').value.trim();
+            const date = document.getElementById('reminderDate').value;
+            const time = document.getElementById('reminderTime').value;
+            const priority = document.getElementById('reminderPriority').value;
+            const noteIdVal = document.getElementById('reminderNoteId').value;
+            const notesText = document.getElementById('reminderNotes').value.trim();
+
+            const newReminder = {
+                id: Date.now(),
+                title,
+                date,
+                time,
+                priority,
+                noteId: noteIdVal ? Number(noteIdVal) : null,
+                notes: notesText,
+                completed: false,
+                createdAt: getCurrentWibTime()
+            };
+
+            reminders.unshift(newReminder);
+            saveToLocalStorage();
+            closeReminderModal();
+            renderReminders();
+            renderCalendar();
+            updateTodayReminderAlert();
+        }
+
+        function quickAddReminderFromNote(noteId) {
+            const note = notes.find(n => n.id === noteId);
+            if (!note) return;
+            openReminderModal(note.deadline || note.date || null, note.id);
+            const titleInput = document.getElementById('reminderTitle');
+            if (titleInput) {
+                titleInput.value = note.actionPlan ? `Tindak Lanjut: ${note.actionPlan}` : `Pengingat: ${note.title}`;
+            }
+        }
+
+        function updateTodayReminderAlert() {
+            const todayIso = getTodayIsoDate();
+            const dueToday = reminders.filter(r => !r.completed && r.date === todayIso);
+            const dot = document.getElementById('navReminderDot');
+            const bottomDot = document.getElementById('bottomNavReminderDot');
+            const hasDue = dueToday.length > 0;
+            if (dot) {
+                if (hasDue) dot.classList.remove('hidden');
+                else dot.classList.add('hidden');
+            }
+            if (bottomDot) {
+                if (hasDue) bottomDot.classList.remove('hidden');
+                else bottomDot.classList.add('hidden');
+            }
+        }
+
+        // ==========================================
+        // LOGIKA KATEGORI CATATAN
+        // ==========================================
+        function getCategoryColorClass(colorKey) {
+            const map = {
+                indigo: 'bg-indigo-500',
+                blue: 'bg-blue-500',
+                emerald: 'bg-emerald-500',
+                amber: 'bg-amber-500',
+                rose: 'bg-rose-500',
+                purple: 'bg-purple-500',
+                teal: 'bg-teal-500',
+                cyan: 'bg-cyan-500'
+            };
+            return map[colorKey] || 'bg-indigo-500';
+        }
+
+        function renderFoldersList() {
+            const container = document.getElementById('foldersListContainer');
+            if (!container) return;
+
+            let html = '';
+            folders.forEach(slug => {
+                const count = notes.filter(n => n.folder === slug).length;
+                const meta = categoryMeta[slug] || {
+                    name: slug.charAt(0).toUpperCase() + slug.slice(1),
+                    color: 'indigo',
+                    icon: '📁'
+                };
+                const colorDotClass = getCategoryColorClass(meta.color);
+                const isActive = currentFilter === slug;
+                const isDefault = ['perkuliahan', 'organisasi', 'proyek', 'pribadi'].includes(slug);
+
+                html += `
+                    <div class="group/item flex items-center justify-between px-3 py-2 rounded-xl ${isActive ? 'bg-indigo-50 text-indigo-600 font-semibold' : 'hover:bg-gray-50 text-gray-600'} transition-colors cursor-pointer" onclick="filterByFolder('${slug}')">
+                        <span class="flex items-center space-x-2.5 truncate">
+                            <span class="w-2 h-2 rounded-full ${colorDotClass} shrink-0"></span>
+                            <span class="text-xs mr-0.5">${meta.icon || '📁'}</span>
+                            <span class="truncate capitalize text-xs">${meta.name || slug}</span>
+                        </span>
+                        <div class="flex items-center space-x-1 shrink-0">
+                            <span class="text-xs text-gray-400 bg-gray-100 px-2 py-0.5 rounded-md font-semibold">${count}</span>
+                            ${!isDefault ? `
+                                <button type="button" onclick="deleteCategory('${slug}', event)" title="Hapus Kategori"
+                                    class="p-0.5 text-gray-300 hover:text-red-500 opacity-80 sm:opacity-0 group-hover/item:opacity-100 transition-opacity">
+                                    <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"></path></svg>
+                                </button>
+                            ` : ''}
+                        </div>
+                    </div>
+                `;
+            });
+
+            container.innerHTML = html;
+        }
+
+        function populateFolderDropdowns() {
+            const modalFolder = document.getElementById('modalFolder');
+            if (!modalFolder) return;
+
+            let html = '';
+            folders.forEach(slug => {
+                const meta = categoryMeta[slug] || { name: slug.charAt(0).toUpperCase() + slug.slice(1), icon: '📁' };
+                html += `<option value="${slug}">${meta.icon || ''} ${meta.name || slug}</option>`;
+            });
+            modalFolder.innerHTML = html;
+        }
+
+        function openCategoryModal() {
+            const modal = document.getElementById('categoryModal');
+            const content = document.getElementById('categoryModalContent');
+            const form = document.getElementById('categoryForm');
+            if (form) form.reset();
+
+            modal.classList.remove('hidden');
+            modal.classList.add('flex');
+            setTimeout(() => {
+                content.classList.remove('scale-95', 'opacity-0');
+                content.classList.add('scale-100', 'opacity-100');
+            }, 10);
+        }
+
+        function closeCategoryModal() {
+            const modal = document.getElementById('categoryModal');
+            const content = document.getElementById('categoryModalContent');
+            content.classList.remove('scale-100', 'opacity-100');
+            content.classList.add('scale-95', 'opacity-0');
+            setTimeout(() => {
+                modal.classList.remove('flex');
+                modal.classList.add('hidden');
+            }, 200);
+        }
+
+        function handleSaveCategory(event) {
+            event.preventDefault();
+            const name = document.getElementById('categoryName').value.trim();
+            if (!name) return;
+
+            const slug = name.toLowerCase().replace(/[^a-z0-9]/g, '-').replace(/-+/g, '-');
+            if (folders.includes(slug)) {
+                alert('Kategori dengan nama serupa sudah ada!');
+                return;
+            }
+
+            const colorRadios = document.getElementsByName('catColor');
+            let selectedColor = 'indigo';
+            for (let r of colorRadios) {
+                if (r.checked) { selectedColor = r.value; break; }
+            }
+
+            const iconRadios = document.getElementsByName('catIcon');
+            let selectedIcon = '📁';
+            for (let r of iconRadios) {
+                if (r.checked) { selectedIcon = r.value; break; }
+            }
+
+            folders.push(slug);
+            categoryMeta[slug] = {
+                name: name,
+                color: selectedColor,
+                icon: selectedIcon
+            };
+
+            saveToLocalStorage();
+            closeCategoryModal();
+            renderFoldersList();
+            populateFolderDropdowns();
+            filterByFolder(slug);
+        }
+
+        function deleteCategory(slug, event) {
+            if (event) event.stopPropagation();
+            const count = notes.filter(n => n.folder === slug).length;
+            if (count > 0) {
+                if (!confirm(`Kategori ini memiliki ${count} catatan. Jika dihapus, catatan akan dipindahkan ke kategori 'pribadi'. Lanjutkan?`)) {
+                    return;
+                }
+                notes.forEach(n => {
+                    if (n.folder === slug) n.folder = 'pribadi';
+                });
+            } else {
+                if (!confirm(`Hapus kategori '${slug}'?`)) return;
+            }
+
+            folders = folders.filter(f => f !== slug);
+            delete categoryMeta[slug];
+
+            if (currentFilter === slug) currentFilter = 'all';
+
+            saveToLocalStorage();
+            renderApp();
+        }
+
+        function renderSidebarCounts() {
+            const badge = document.getElementById('badgeAll');
+            if (badge) badge.innerText = notes.length;
+        }
+
+        function renderTagsList() {
+            const tagsContainer = document.getElementById('tagsContainer');
+            if (!tagsContainer) return;
+
+            const allTags = new Set();
+            notes.forEach(n => {
+                if (Array.isArray(n.tags)) {
+                    n.tags.forEach(t => allTags.add(t));
+                }
+            });
+
+            let html = '';
+            allTags.forEach(tag => {
+                const isActive = currentFilter === tag;
+                html += `<span onclick="filterByTag('${tag}')" class="text-xs ${isActive ? 'bg-indigo-600 text-white font-semibold' : 'bg-gray-100 text-gray-600 hover:bg-gray-200'} px-2.5 py-1 rounded-lg cursor-pointer transition-colors">${tag}</span>`;
+            });
+            tagsContainer.innerHTML = html || '<span class="text-xs text-gray-400 px-3">Belum ada label</span>';
+        }
+
+        function filterByFolder(folder) {
+            currentFilter = folder;
+            selectedCalendarDate = null;
+            searchQuery = '';
+            const searchEl = document.getElementById('searchInput');
+            if (searchEl) searchEl.value = '';
+            highlightActiveNav(folder);
+            renderCalendar();
+            renderReminders();
+            renderNotesList();
+
+            if (window.innerWidth < 1024) {
+                closeMobileSidebar();
+                switchToNotesListMobile();
+            }
+        }
+
+        function filterByTag(tag) {
+            currentFilter = tag;
+            selectedCalendarDate = null;
+            highlightActiveNav('none');
+            renderCalendar();
+            renderReminders();
+            renderNotesList();
+
+            if (window.innerWidth < 1024) {
+                closeMobileSidebar();
+                switchToNotesListMobile();
+            }
+        }
+
+        function handleFilterStatusChange(event) {
+            filterStatusVal = event.target.value;
+            renderNotesList();
+        }
+
+        function handleFilterPriorityChange(event) {
+            filterPriorityVal = event.target.value;
+            renderNotesList();
+        }
+
+        function handleSearch(event) {
+            searchQuery = event.target.value.toLowerCase();
+            renderNotesList();
+            if (window.innerWidth < 768 && mobileCurrentView !== 'list') {
+                switchToNotesListMobile();
+            }
+        }
+
+        function highlightActiveNav(folder) {
+            const navAll = document.getElementById('navAll');
+            if (navAll) navAll.className = "w-full flex items-center justify-between px-3 py-2 rounded-xl hover:bg-gray-50 transition-colors text-sm font-medium text-gray-600";
+
+            renderFoldersList();
+
+            if (!selectedCalendarDate && folder === 'all' && navAll) {
+                navAll.className = "w-full flex items-center justify-between px-3 py-2 rounded-xl bg-indigo-50 text-indigo-600 font-semibold text-sm transition-colors";
+            }
+        }
+
+        // ==========================================
+        // RENDER DAFTAR CATATAN (PANEL TENGAH)
+        // ==========================================
+        function renderNotesList() {
+            const container = document.getElementById('notesListContainer');
+            const listTitle = document.getElementById('listTitle');
+            const listCount = document.getElementById('listCount');
+
+            if (!container) return;
+
+            let filtered = notes.filter(n => {
+                let matchFilter = true;
+                if (selectedCalendarDate) {
+                    matchFilter = n.date === selectedCalendarDate;
+                    const parts = selectedCalendarDate.split('-');
+                    const d = parseInt(parts[2], 10);
+                    const m = indoMonthNames[parseInt(parts[1], 10) - 1] || '';
+                    const y = parts[0];
+                    if (listTitle) listTitle.innerText = `Catatan: ${d} ${m} ${y}`;
+                } else if (currentFilter === 'all') {
+                    if (listTitle) listTitle.innerText = "Semua Catatan";
+                } else if (currentFilter.startsWith('#')) {
+                    matchFilter = n.tags && n.tags.includes(currentFilter);
+                    if (listTitle) listTitle.innerText = `Label: ${currentFilter}`;
+                } else {
+                    matchFilter = n.folder === currentFilter;
+                    const meta = categoryMeta[currentFilter];
+                    const catName = meta ? meta.name : currentFilter;
+                    if (listTitle) listTitle.innerText = `Kategori: ${catName}`;
+                }
+
+                // Filter Status
+                let matchStatus = true;
+                if (filterStatusVal !== 'all') {
+                    matchStatus = (n.status || 'berjalan') === filterStatusVal;
+                }
+
+                // Filter Prioritas
+                let matchPriority = true;
+                if (filterPriorityVal !== 'all') {
+                    matchPriority = (n.priority || 'sedang') === filterPriorityVal;
+                }
+
+                // Pencarian Universal
+                let matchSearch = true;
+                if (searchQuery) {
+                    const tagStr = Array.isArray(n.tags) ? n.tags.join(' ') : '';
+                    const text = `${n.title || ''} ${n.content || ''} ${n.actionPlan || ''} ${tagStr}`.toLowerCase();
+                    matchSearch = text.includes(searchQuery);
+                }
+
+                return matchFilter && matchStatus && matchPriority && matchSearch;
+            });
+
+            filtered.sort((a, b) => (b.isPinned === true) - (a.isPinned === true));
+
+            if (listCount) listCount.innerText = `${filtered.length} dokumen`;
+
+            if (filtered.length === 0) {
+                if (selectedCalendarDate) {
+                    const parts = selectedCalendarDate.split('-');
+                    const d = parseInt(parts[2], 10);
+                    const m = indoMonthNames[parseInt(parts[1], 10) - 1] || '';
+                    const y = parts[0];
+                    container.innerHTML = `
+                        <div class="p-6 text-center text-xs text-gray-500 space-y-3">
+                            <div class="w-10 h-10 bg-indigo-50 text-indigo-600 rounded-full flex items-center justify-center mx-auto">
+                                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"></path>
+                                </svg>
+                            </div>
+                            <p class="text-gray-600 font-medium leading-relaxed">Tidak ada catatan pada tanggal <strong>${d} ${m} ${y}</strong>.</p>
+                            <button onclick="openModalWithDate('${selectedCalendarDate}')" class="px-3.5 py-2 bg-indigo-600 hover:bg-indigo-700 text-white rounded-xl font-semibold text-xs transition-all shadow-md shadow-indigo-600/20 active:scale-95 inline-flex items-center space-x-1.5">
+                                <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"></path></svg>
+                                <span>Buat Catatan Baru</span>
+                            </button>
+                        </div>
+                    `;
+                } else if (notes.length === 0) {
+                    container.innerHTML = `
+                        <div class="p-8 text-center my-auto flex flex-col items-center justify-center space-y-3">
+                            <div class="w-12 h-12 rounded-2xl bg-indigo-50 border border-indigo-100 text-indigo-600 flex items-center justify-center shadow-xs">
+                                <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path>
+                                </svg>
+                            </div>
+                            <div>
+                                <h4 class="text-xs font-bold text-gray-900">Belum Ada Catatan</h4>
+                                <p class="text-[11px] text-gray-500 mt-1 max-w-[200px] leading-relaxed">Ruang kerja baru Anda masih kosong dan siap digunakan.</p>
+                            </div>
+                            <button type="button" onclick="openModal()"
+                                class="inline-flex items-center space-x-1.5 px-3.5 py-2 bg-indigo-600 hover:bg-indigo-700 text-white rounded-xl font-bold text-xs shadow-md shadow-indigo-600/20 active:scale-95 transition-all">
+                                <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"></path></svg>
+                                <span>Buat Catatan Pertama</span>
+                            </button>
+                        </div>
+                    `;
+                } else {
+                    container.innerHTML = `<div class="p-6 text-center text-xs text-gray-400">Tidak ada catatan ditemukan sesuai filter.</div>`;
+                }
+                return;
+            }
+
+            let html = '';
+            filtered.forEach(note => {
+                const isActive = note.id === activeNoteId;
+                const tempDiv = document.createElement('div');
+                tempDiv.innerHTML = note.content || '';
+                const plainTextContent = tempDiv.innerText || tempDiv.textContent || '';
+
+                const meta = categoryMeta[note.folder] || { name: note.folder, icon: '📁', color: 'indigo' };
+
+                let prioBadgeHtml = '';
+                if (note.priority === 'tinggi') {
+                    prioBadgeHtml = `<span class="text-[9px] font-bold text-rose-600 bg-rose-50 border border-rose-200/80 px-1.5 py-0.2 rounded">🔥 Tinggi</span>`;
+                } else if (note.priority === 'sedang') {
+                    prioBadgeHtml = `<span class="text-[9px] font-bold text-amber-600 bg-amber-50 border border-amber-200/80 px-1.5 py-0.2 rounded">⚡ Sedang</span>`;
+                } else {
+                    prioBadgeHtml = `<span class="text-[9px] font-semibold text-emerald-600 bg-emerald-50 border border-emerald-200/80 px-1.5 py-0.2 rounded">☕ Rendah</span>`;
+                }
+
+                let statusBadgeHtml = '';
+                if (note.status === 'selesai') {
+                    statusBadgeHtml = `<span class="text-[9px] font-bold text-emerald-700 bg-emerald-50 border border-emerald-200 px-1.5 py-0.2 rounded">✅ Selesai</span>`;
+                } else if (note.status === 'draf') {
+                    statusBadgeHtml = `<span class="text-[9px] font-bold text-gray-600 bg-gray-100 px-1.5 py-0.2 rounded">📝 Draf</span>`;
+                } else if (note.status === 'review') {
+                    statusBadgeHtml = `<span class="text-[9px] font-bold text-purple-700 bg-purple-50 border border-purple-200 px-1.5 py-0.2 rounded">👀 Review</span>`;
+                } else {
+                    statusBadgeHtml = `<span class="text-[9px] font-bold text-blue-700 bg-blue-50 border border-blue-200 px-1.5 py-0.2 rounded">⏳ Berjalan</span>`;
+                }
+
+                html += `
+                    <div onclick="selectNote(${note.id})" class="p-3.5 sm:p-4 ${isActive ? 'bg-indigo-50/70 border-l-4 border-indigo-600' : 'hover:bg-gray-50/80'} cursor-pointer transition-all relative">
+                        <div class="flex items-center justify-between mb-1.5 gap-1 flex-wrap">
+                            <div class="flex items-center space-x-1.5">
+                                <span class="text-[10px] font-bold uppercase tracking-wider text-indigo-700 bg-indigo-50 px-2 py-0.5 rounded capitalize flex items-center space-x-1">
+                                    <span>${meta.icon || ''}</span>
+                                    <span>${meta.name || note.folder}</span>
+                                </span>
+                                ${prioBadgeHtml}
+                            </div>
+                            <div class="flex items-center space-x-1">
+                                ${statusBadgeHtml}
+                                ${note.isPinned ? '<svg class="w-3.5 h-3.5 text-indigo-600 fill-indigo-600" viewBox="0 0 24 24"><path d="M5 5a2 2 0 012-2h10a2 2 0 012 2v16l-7-3.5L5 21V5z"/></svg>' : ''}
+                            </div>
+                        </div>
+
+                        <h3 class="text-xs sm:text-sm font-bold text-gray-900 mb-1 line-clamp-1">${note.title || 'Tanpa Judul'}</h3>
+                        <p class="text-xs text-gray-500 line-clamp-2 mb-2 leading-relaxed">📅 ${note.date || 'Tanpa Tanggal'} | ${plainTextContent}</p>
+
+                        <div class="flex items-center justify-between text-[10px] text-gray-400 pt-1.5 border-t border-gray-100/60">
+                            <span class="text-indigo-600 font-medium">${note.tags ? note.tags[0] : ''}</span>
+                            <span>Diubah: ${note.updatedAt ? note.updatedAt.split(',')[1] : ''}</span>
+                        </div>
+                    </div>
+                `;
+            });
+
+            container.innerHTML = html;
+        }
+
+        function selectNote(id) {
+            activeNoteId = id;
+            renderNotesList();
+            renderEditor();
+
+            // Pada layar mobile, langsung alihkan fokus ke area baca/editor
+            if (window.innerWidth < 768) {
+                switchToEditorMobile();
+            }
+        }
+
+        // ==========================================
+        // RENDER EDITOR & AREA BACA (PANEL KANAN)
+        // ==========================================
+        function renderEditor() {
+            const main = document.getElementById('editorMain');
+            const activeNote = notes.find(n => n.id === activeNoteId);
+
+            if (!activeNote) {
+                if (notes.length === 0) {
+                    main.innerHTML = `
+                        <div class="flex-1 flex flex-col items-center justify-center text-center p-8 space-y-4 my-auto">
+                            <div class="w-16 h-16 rounded-3xl bg-indigo-50 border border-indigo-100/80 flex items-center justify-center text-indigo-600 shadow-sm">
+                                <svg class="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z"></path>
+                                </svg>
+                            </div>
+                            <div class="max-w-md space-y-1.5">
+                                <h3 class="text-base font-bold text-gray-900">Ruang Kerja MeetBase Anda Siap</h3>
+                                <p class="text-xs text-gray-500 leading-relaxed">
+                                    Akun baru Anda masih bersih dan belum ada catatan. Mulai abadikan ide, jadwalkan pengingat rapat, atau susun notulensi terstruktur sekarang.
+                                </p>
+                            </div>
+                            <button type="button" onclick="openModal()"
+                                class="inline-flex items-center space-x-2 px-5 py-2.5 bg-indigo-600 hover:bg-indigo-700 text-white rounded-xl font-bold text-xs shadow-md shadow-indigo-600/20 active:scale-95 transition-all">
+                                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"></path></svg>
+                                <span>Buat Catatan Pertama</span>
+                            </button>
+                        </div>
+                    `;
+                } else {
+                    main.innerHTML = `<div class="flex-1 flex items-center justify-center text-gray-400 text-sm p-6 text-center">Pilih catatan dari daftar di sebelah kiri atau buat catatan baru.</div>`;
+                }
+                return;
+            }
+
+            let folderOptions = '';
+            folders.forEach(slug => {
+                const meta = categoryMeta[slug] || { name: slug, icon: '📁' };
+                folderOptions += `<option value="${slug}" ${activeNote.folder === slug ? 'selected' : ''}>${meta.icon || ''} ${meta.name || slug}</option>`;
+            });
+
+            const linkedReminders = reminders.filter(r => r.noteId === activeNote.id);
+
+            main.innerHTML = `
+                <!-- Action Bar Atas (Responsif) -->
+                <div class="px-4 sm:px-8 py-3 border-b border-gray-200/90 flex flex-wrap items-center justify-between gap-2.5 bg-white shrink-0">
+                    <div class="flex items-center flex-wrap gap-2 text-xs">
+                        <!-- Tombol Kembali ke Daftar Catatan (Hanya Tampil di Mobile) -->
+                        <button type="button" onclick="switchToNotesListMobile()"
+                            class="md:hidden inline-flex items-center space-x-1 text-xs font-bold text-indigo-600 bg-indigo-50 hover:bg-indigo-100 px-2.5 py-1.5 rounded-xl transition-colors">
+                            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"></path></svg>
+                            <span>Daftar</span>
+                        </button>
+
+                        <select id="editFolder" class="bg-indigo-50 text-indigo-700 font-bold px-2 py-1.5 rounded-xl border border-indigo-200 focus:outline-none cursor-pointer text-xs">
+                            ${folderOptions}
+                        </select>
+
+                        <input type="date" id="editDate" value="${activeNote.date || ''}"
+                            class="text-xs font-semibold text-gray-700 bg-gray-50 border border-gray-200 rounded-xl px-2 py-1.5 focus:outline-none focus:border-indigo-600">
+
+                        <!-- Dropdown Status -->
+                        <select id="editStatus" class="bg-gray-50 font-bold px-2 py-1.5 rounded-xl border border-gray-200 focus:outline-none text-xs cursor-pointer">
+                            <option value="berjalan" ${(activeNote.status || 'berjalan') === 'berjalan' ? 'selected' : ''}>⏳ Berjalan</option>
+                            <option value="selesai" ${activeNote.status === 'selesai' ? 'selected' : ''}>✅ Selesai</option>
+                            <option value="draf" ${activeNote.status === 'draf' ? 'selected' : ''}>📝 Draf</option>
+                            <option value="review" ${activeNote.status === 'review' ? 'selected' : ''}>👀 Review</option>
+                        </select>
+
+                        <!-- Dropdown Prioritas -->
+                        <select id="editPriority" class="bg-gray-50 font-bold px-2 py-1.5 rounded-xl border border-gray-200 focus:outline-none text-xs cursor-pointer">
+                            <option value="tinggi" ${(activeNote.priority || 'sedang') === 'tinggi' ? 'selected' : ''}>🔥 Tinggi</option>
+                            <option value="sedang" ${(activeNote.priority || 'sedang') === 'sedang' ? 'selected' : ''}>⚡ Sedang</option>
+                            <option value="rendah" ${(activeNote.priority || 'sedang') === 'rendah' ? 'selected' : ''}>☕ Rendah</option>
+                        </select>
+                    </div>
+
+                    <div class="flex items-center space-x-1.5 sm:space-x-2">
+                        <!-- Tombol Tambah Pengingat Cepat -->
+                        <button type="button" onclick="quickAddReminderFromNote(${activeNote.id})" title="Buat Pengingat Terkait"
+                            class="px-2.5 sm:px-3 py-1.5 text-xs font-semibold bg-amber-50 text-amber-700 border border-amber-200 hover:bg-amber-100 rounded-xl transition-all flex items-center space-x-1">
+                            <svg class="w-3.5 h-3.5 text-amber-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 17h5l-1.405-1.405A2.032 2.032 0 0118 14.158V11a6.002 6.002 0 00-4-5.659V5a2 2 0 10-4 0v.341C7.67 6.165 6 8.388 6 11v3.159c0 .538-.214 1.055-.595 1.436L4 17h5m6 0v1a3 3 0 11-6 0v-1m6 0H9"></path></svg>
+                            <span class="hidden sm:inline">+ Pengingat</span>
+                        </button>
+
+                        <!-- Tombol Pin -->
+                        <button onclick="togglePinActiveNote(${activeNote.id})"
+                            class="p-1.5 sm:px-3 sm:py-1.5 text-xs font-semibold ${activeNote.isPinned ? 'bg-indigo-600 text-white' : 'bg-gray-100 text-gray-700 hover:bg-gray-200'} rounded-xl transition-colors flex items-center space-x-1">
+                            <svg class="w-3.5 h-3.5 ${activeNote.isPinned ? 'fill-white' : ''}" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 5a2 2 0 012-2h10a2 2 0 012 2v16l-7-3.5L5 21V5z"></path></svg>
+                            <span class="hidden sm:inline">${activeNote.isPinned ? 'Disematkan' : 'Pin'}</span>
+                        </button>
+
+                        <button onclick="deleteNote(${activeNote.id})" class="px-2.5 sm:px-3 py-1.5 text-xs font-semibold text-red-600 hover:bg-red-50 rounded-xl transition-colors">Hapus</button>
+                        <button onclick="saveActiveNote(${activeNote.id})" class="px-3 sm:px-3.5 py-1.5 text-xs font-semibold bg-indigo-600 text-white hover:bg-indigo-700 rounded-xl shadow-md shadow-indigo-600/20 active:scale-95 transition-all">Simpan</button>
+                    </div>
+                </div>
+
+                <!-- Konten Editor Scrollable -->
+                <div class="flex-1 overflow-y-auto p-4 sm:p-8 space-y-4">
+                    <!-- Strip Info Riwayat -->
+                    <div class="bg-gray-50/80 p-2.5 sm:p-3 rounded-2xl border border-gray-200/80 flex flex-wrap items-center justify-between text-xs text-gray-500 gap-2">
+                        <div class="flex items-center space-x-3 text-[11px] sm:text-xs">
+                            <span>📌 <strong>Dibuat:</strong> ${activeNote.createdAt || 'Tidak tercatat'}</span>
+                            <span class="hidden sm:inline">✏️ <strong>Diubah:</strong> ${activeNote.updatedAt || 'Belum diubah'}</span>
+                        </div>
+                        <div>
+                            ${linkedReminders.length > 0 ? `<span class="bg-amber-100 text-amber-800 text-[10px] sm:text-[11px] font-bold px-2 py-0.5 rounded-full">🔔 ${linkedReminders.length} Pengingat</span>` : ''}
+                        </div>
+                    </div>
+
+                    <!-- Input Judul & Tags -->
+                    <input type="text" id="editTitle" value="${activeNote.title}" placeholder="Judul Catatan..."
+                        class="w-full text-xl sm:text-2xl font-bold text-gray-900 border-none focus:outline-none focus:ring-0 p-0 placeholder:text-gray-300">
+                    <input type="text" id="editTags" value="${activeNote.tags ? activeNote.tags.join(', ') : ''}" placeholder="Label / Tags (pisahkan dengan koma)"
+                        class="w-full text-xs text-gray-500 border-none focus:outline-none focus:ring-0 p-0">
+
+                    <!-- Toolbar & Editor Teks Lengkap -->
+                    <div>
+                        <div class="bg-gray-50 border border-gray-200 rounded-t-xl px-2 sm:px-3 py-1.5 sm:py-2 flex flex-wrap gap-1 text-gray-600">
+                            <button type="button" onclick="execCmdEdit('bold')" title="Bold" class="p-1 hover:bg-gray-200 rounded font-bold text-xs w-6 sm:w-7 h-6 sm:h-7 flex items-center justify-center">B</button>
+                            <button type="button" onclick="execCmdEdit('italic')" title="Italic" class="p-1 hover:bg-gray-200 rounded italic text-xs w-6 sm:w-7 h-6 sm:h-7 flex items-center justify-center">I</button>
+                            <button type="button" onclick="execCmdEdit('underline')" title="Underline" class="p-1 hover:bg-gray-200 rounded underline text-xs w-6 sm:w-7 h-6 sm:h-7 flex items-center justify-center">U</button>
+                            <span class="w-px h-4 sm:h-5 bg-gray-300 my-auto mx-1"></span>
+                            <button type="button" onclick="execCmdEdit('formatBlock', '<h1>')" title="H1" class="p-1 hover:bg-gray-200 rounded font-bold text-xs px-1.5">H1</button>
+                            <button type="button" onclick="execCmdEdit('formatBlock', '<h2>')" title="H2" class="p-1 hover:bg-gray-200 rounded font-bold text-xs px-1.5">H2</button>
+                            <button type="button" onclick="execCmdEdit('formatBlock', '<blockquote>')" title="Quote" class="p-1 hover:bg-gray-200 rounded text-xs px-1.5 font-serif">“ ”</button>
+                            <span class="w-px h-4 sm:h-5 bg-gray-300 my-auto mx-1"></span>
+                            <button type="button" onclick="execCmdEdit('insertUnorderedList')" title="Bullet List" class="p-1 hover:bg-gray-200 rounded text-xs px-1.5 sm:px-2">• List</button>
+                            <button type="button" onclick="execCmdEdit('insertOrderedList')" title="Numbered List" class="p-1 hover:bg-gray-200 rounded text-xs px-1.5 sm:px-2">1. List</button>
+                            <button type="button" onclick="formatMonospaceEdit()" title="Monospace" class="p-1 hover:bg-gray-200 rounded text-xs font-mono-code px-1.5 bg-gray-100">&lt;/&gt;</button>
+                        </div>
+                        <div id="editContentEditor" contenteditable="true"
+                            class="editor-content p-3 sm:p-4 text-xs sm:text-sm text-gray-700 border-x border-b border-gray-200 rounded-b-xl min-h-[180px] sm:min-h-[220px] focus:outline-none leading-relaxed">${activeNote.content || ''}</div>
+                    </div>
+
+                    <!-- Rencana Tindak Lanjut & Tenggat Waktu Card -->
+                    <div class="bg-indigo-50/70 border border-indigo-100 p-3 sm:p-4 rounded-2xl space-y-2 sm:space-y-3">
+                        <div class="grid grid-cols-1 sm:grid-cols-3 gap-2.5 sm:gap-3">
+                            <div class="sm:col-span-2">
+                                <label class="block text-[10px] font-bold text-indigo-900 uppercase tracking-wider mb-1 flex items-center space-x-1.5">
+                                    <svg class="w-4 h-4 text-indigo-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
+                                    <span>Rencana Tindak Lanjut / Catatan Penting</span>
+                                </label>
+                                <input type="text" id="editAction" value="${activeNote.actionPlan || ''}" placeholder="Tulis rencana tindak lanjut..."
+                                    class="w-full bg-white border border-indigo-200 rounded-xl px-3 py-2 text-xs font-medium text-indigo-950 focus:outline-none focus:border-indigo-600">
+                            </div>
+                            <div>
+                                <label class="block text-[10px] font-bold text-indigo-900 uppercase tracking-wider mb-1 flex items-center space-x-1">
+                                    <svg class="w-3.5 h-3.5 text-indigo-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"></path></svg>
+                                    <span>Tenggat Waktu</span>
+                                </label>
+                                <input type="date" id="editDeadline" value="${activeNote.deadline || ''}"
+                                    class="w-full bg-white border border-indigo-200 rounded-xl px-3 py-2 text-xs font-medium text-indigo-950 focus:outline-none focus:border-indigo-600">
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Daftar Pengingat Terhubung -->
+                    ${linkedReminders.length > 0 ? `
+                        <div class="bg-amber-50/60 border border-amber-200/80 p-3 sm:p-4 rounded-2xl space-y-2">
+                            <div class="flex items-center justify-between">
+                                <p class="text-xs font-bold text-amber-900 uppercase tracking-wider flex items-center space-x-1.5">
+                                    <svg class="w-4 h-4 text-amber-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 17h5l-1.405-1.405A2.032 2.032 0 0118 14.158V11a6.002 6.002 0 00-4-5.659V5a2 2 0 10-4 0v.341C7.67 6.165 6 8.388 6 11v3.159c0 .538-.214 1.055-.595 1.436L4 17h5m6 0v1a3 3 0 11-6 0v-1m6 0H9"></path></svg>
+                                    <span>Pengingat Terhubung</span>
+                                </p>
+                                <button type="button" onclick="quickAddReminderFromNote(${activeNote.id})" class="text-[11px] font-bold text-indigo-600 hover:underline">+ Tambah</button>
+                            </div>
+                            <div class="space-y-1">
+                                ${linkedReminders.map(r => `
+                                    <div class="flex items-center justify-between bg-white px-3 py-1.5 rounded-lg border border-amber-100 text-xs">
+                                        <div class="flex items-center space-x-2 truncate">
+                                            <input type="checkbox" ${r.completed ? 'checked' : ''} onchange="toggleReminderStatus(${r.id})" class="rounded text-indigo-600 cursor-pointer">
+                                            <span class="truncate ${r.completed ? 'line-through text-gray-400' : 'text-gray-800 font-medium'}">${r.title}</span>
+                                        </div>
+                                        <span class="text-[10px] text-gray-500 shrink-0 ml-2">${r.date} ${r.time ? '• ' + r.time : ''}</span>
+                                    </div>
+                                `).join('')}
+                            </div>
+                        </div>
+                    ` : ''}
+
+                    <!-- Lampiran File -->
+                    <div class="pt-1 flex flex-col space-y-2 text-xs text-gray-500 bg-gray-50 p-3 sm:p-4 rounded-2xl border border-gray-200">
+                        <div class="flex items-center space-x-2">
+                            <svg class="w-4 h-4 text-gray-400 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15.172 7l-6.586 6.586a2 2 0 102.828 2.828l6.414-6.586a4 4 0 00-5.656-5.656l-6.415 6.585a6 6 0 108.486 8.486L20.5 13"></path></svg>
+                            <span class="truncate">Lampiran: <strong>${activeNote.fileName || 'Tidak ada file dilampirkan'}</strong> ${activeNote.fileSize ? `(${activeNote.fileSize})` : ''}</span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Footer Status Bar -->
+                <div class="px-4 sm:px-8 py-2.5 bg-gray-50 border-t border-gray-200 flex items-center justify-between text-gray-500 text-xs shrink-0">
+                    <span class="font-semibold text-indigo-600 flex items-center space-x-1.5 text-[11px] sm:text-xs">
+                        <span class="w-2 h-2 rounded-full bg-emerald-500 inline-block animate-pulse"></span>
+                        <span>MeetBase Smart Editor</span>
+                    </span>
+                    <span class="text-[10px] sm:text-[11px] text-gray-400">Tekan "Simpan" untuk memperbarui</span>
+                </div>
+            `;
+        }
+
+        function handleFileSelect(event) {
+            const file = event.target.files[0];
+            if (!file) return;
+
+            if (file.size > MAX_FILE_SIZE) {
+                alert("Ukuran file terlalu besar! Maksimal ukuran file adalah 5 MB.");
+                event.target.value = "";
+                removeSelectedFile();
+                return;
+            }
+
+            selectedFileName = file.name;
+            selectedFileSize = (file.size / (1024 * 1024)).toFixed(2) + " MB";
+
+            document.getElementById('fileInfoText').innerText = `Berhasil: ${selectedFileName} (${selectedFileSize})`;
+            document.getElementById('fileInfoDisplay').classList.remove('hidden');
+        }
+
+        function removeSelectedFile() {
+            const fileInput = document.getElementById('modalFile');
+            if (fileInput) fileInput.value = "";
+            const infoDisplay = document.getElementById('fileInfoDisplay');
+            if (infoDisplay) infoDisplay.classList.add('hidden');
+            selectedFileName = "";
+            selectedFileSize = "";
+        }
+
+        function execCmdModal(command, value = null) {
+            document.execCommand(command, false, value);
+            document.getElementById('modalContentEditor').focus();
+        }
+
+        function execCmdEdit(command, value = null) {
+            document.execCommand(command, false, value);
+            document.getElementById('editContentEditor').focus();
+        }
+
+        function formatMonospaceModal() {
+            const sel = window.getSelection();
+            if (sel.rangeCount) {
+                const range = sel.getRangeAt(0);
+                const code = document.createElement('code');
+                code.textContent = range.toString() || 'code';
+                range.deleteContents();
+                range.insertNode(code);
+            }
+        }
+
+        function formatMonospaceEdit() {
+            const sel = window.getSelection();
+            if (sel.rangeCount) {
+                const range = sel.getRangeAt(0);
+                const code = document.createElement('code');
+                code.textContent = range.toString() || 'code';
+                range.deleteContents();
+                range.insertNode(code);
+            }
+        }
+
+        function getCurrentWibTime() {
+            const now = new Date();
+            const options = { day: 'numeric', month: 'short', year: 'numeric', hour: '2-digit', minute: '2-digit' };
+            return `${now.toLocaleDateString('id-ID', options)} WIB`;
+        }
+
+        function togglePinActiveNote(id) {
+            const note = notes.find(n => n.id === id);
+            if (note) {
+                note.isPinned = !note.isPinned;
+                note.updatedAt = getCurrentWibTime();
+                saveToLocalStorage();
+                renderApp();
+            }
+        }
+
+        function saveActiveNote(id) {
+            const note = notes.find(n => n.id === id);
+            if (note) {
+                note.title = document.getElementById('editTitle').value.trim() || 'Tanpa Judul';
+                note.folder = document.getElementById('editFolder').value;
+                note.date = document.getElementById('editDate').value;
+                note.status = document.getElementById('editStatus').value;
+                note.priority = document.getElementById('editPriority').value;
+                note.deadline = document.getElementById('editDeadline').value;
+                note.actionPlan = document.getElementById('editAction').value.trim();
+
+                const tagInput = document.getElementById('editTags').value;
+                note.tags = tagInput ? tagInput.split(',').map(t => t.trim().startsWith('#') ? t.trim() : '#' + t.trim()) : [];
+                note.content = document.getElementById('editContentEditor').innerHTML;
+                note.updatedAt = getCurrentWibTime();
+
+                saveToLocalStorage();
+                renderApp();
+                alert('Catatan berhasil diperbarui!');
+            }
+        }
+
+        function deleteNote(id) {
+            if (confirm('Apakah Anda yakin ingin menghapus catatan ini?')) {
+                reminders.forEach(r => {
+                    if (r.noteId === id) r.noteId = null;
+                });
+                notes = notes.filter(n => n.id !== id);
+                activeNoteId = notes.length > 0 ? notes[0].id : null;
+                saveToLocalStorage();
+                renderApp();
+                if (window.innerWidth < 768) {
+                    switchToNotesListMobile();
+                }
+            }
+        }
+
+        function openModal() {
+            const modal = document.getElementById('noteModal');
+            const content = document.getElementById('modalContent');
+            const dateInput = document.getElementById('modalDate');
+            if (dateInput && !dateInput.value) {
+                dateInput.value = selectedCalendarDate || getTodayIsoDate();
+            }
+            populateFolderDropdowns();
+
+            modal.classList.remove('hidden');
+            modal.classList.add('flex');
+            setTimeout(() => {
+                content.classList.remove('scale-95', 'opacity-0');
+                content.classList.add('scale-100', 'opacity-100');
+            }, 10);
+        }
+
+        function closeModal() {
+            const modal = document.getElementById('noteModal');
+            const content = document.getElementById('modalContent');
+            content.classList.remove('scale-100', 'opacity-100');
+            content.classList.add('scale-95', 'opacity-0');
+            setTimeout(() => {
+                modal.classList.remove('flex');
+                modal.classList.add('hidden');
+                document.getElementById('noteForm').reset();
+                document.getElementById('modalContentEditor').innerHTML = '';
+                removeSelectedFile();
+                isModalPinned = false;
+                updatePinButtonStyle();
+            }, 200);
+        }
+
+        function togglePinModal() {
+            isModalPinned = !isModalPinned;
+            updatePinButtonStyle();
+        }
+
+        function updatePinButtonStyle() {
+            const pinBtn = document.getElementById('pinBtn');
+            if (isModalPinned) {
+                pinBtn.classList.add('text-indigo-600', 'bg-indigo-50');
+                pinBtn.classList.remove('text-gray-400');
+            } else {
+                pinBtn.classList.remove('text-indigo-600', 'bg-indigo-50');
+                pinBtn.classList.add('text-gray-400');
+            }
+        }
+
+        function handleSaveNewNote(event) {
+            event.preventDefault();
+            const title = document.getElementById('modalTitle').value.trim();
+            const folder = document.getElementById('modalFolder').value;
+            const date = document.getElementById('modalDate').value;
+            const priority = document.getElementById('modalPriority').value;
+            const status = document.getElementById('modalStatus').value;
+            const actionPlan = document.getElementById('modalAction').value.trim();
+            const deadline = document.getElementById('modalDeadline').value;
+            const autoReminder = document.getElementById('modalAutoReminder').checked;
+            const tagInput = document.getElementById('modalTags').value;
+            const content = document.getElementById('modalContentEditor').innerHTML;
+
+            const tags = tagInput ? tagInput.split(',').map(t => t.trim().startsWith('#') ? t.trim() : '#' + t.trim()) : ['#catatan'];
+            const currentTime = getCurrentWibTime();
+            const noteId = Date.now();
+
+            const newNote = {
+                id: noteId,
+                title,
+                folder,
+                date,
+                priority,
+                status,
+                actionPlan,
+                deadline,
+                fileName: selectedFileName || '',
+                fileSize: selectedFileSize || '',
+                tags,
+                content,
+                isPinned: isModalPinned,
+                createdAt: currentTime,
+                updatedAt: currentTime
+            };
+
+            notes.unshift(newNote);
+            activeNoteId = newNote.id;
+
+            if (autoReminder) {
+                const remDate = deadline || date || getTodayIsoDate();
+                const newRem = {
+                    id: Date.now() + 1,
+                    title: actionPlan ? `Tindak Lanjut: ${actionPlan}` : `Tindak Lanjut: ${title}`,
+                    date: remDate,
+                    time: "09:00",
+                    priority: priority === 'tinggi' ? 'tinggi' : 'sedang',
+                    noteId: noteId,
+                    notes: `Dibuat otomatis dari catatan: ${title}`,
+                    completed: false,
+                    createdAt: currentTime
+                };
+                reminders.unshift(newRem);
+            }
+
+            saveToLocalStorage();
+            closeModal();
+            renderApp();
+
+            if (window.innerWidth < 768) {
+                switchToEditorMobile();
+            }
+        }
+    </script>
+
+    <!-- MeetBase Loader Script -->
+    <script src="loader.js"></script>
+
+</body>
+
+</html>
